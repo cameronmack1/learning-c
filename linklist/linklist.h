@@ -1,6 +1,7 @@
 #ifndef LINKLIST_H
 #define LINKLIST_H
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef struct Node {
     int data;
@@ -19,6 +20,7 @@ Node* deleteFirstWithValue(Node* list, int value);
 size_t length(Node* list);
 bool isEmpty(Node* list);
 Node* reverseList(Node* list);
+Node* printList(Node* list);
 void freeList(Node* list);
 
 #endif

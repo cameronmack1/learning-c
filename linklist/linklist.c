@@ -195,6 +195,16 @@ Node* reverseList(Node* list){
     return prev;
 }
 
+Node* printList(Node* list){
+    Node* current = list;
+    while(current != NULL){
+        printf("%d -> ", current->data);
+        current = current->next;
+    }
+    printf("NULL\n");
+    return list;
+}
+
 //free an entire list
 void freeList(Node* list){
     if(list == NULL) return;
