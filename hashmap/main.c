@@ -48,4 +48,5 @@ int main() {
         //print if it doesnt exist
         printf("\"banana\" is not an existing key\n");
     }
+    return 0;
 }

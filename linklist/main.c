@@ -25,4 +25,5 @@ int main(){
     list = deleteAtPosition(list, 1);
     printf("\ndeleted position 2\n");
     printList(list);
+    return 0;
 }
