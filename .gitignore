@@ -1,0 +1,9 @@
+#ignore everything
+*
+
+#allow c and header files
+!*.c
+!*.h
+
+#allow gitignore
+!.gitignore
