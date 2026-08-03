@@ -2,12 +2,7 @@
 #define HASHMAP_H
 #include <stddef.h>
 #include <stdbool.h>
-
-typedef struct {
-    Node **buckets;
-    size_t count;
-    size_t capacity;
-} Hashmap;
+#include <stdlib.h>
 
 typedef struct Node {
     char* key;
@@ -15,10 +10,16 @@ typedef struct Node {
     struct Node* next;
 } Node;
 
+typedef struct {
+    Node **buckets;
+    size_t count;
+    size_t capacity;
+} Hashmap;
+
+bool rem(Hashmap* map, const char* key);
 Hashmap* init(size_t size);
 bool add(Hashmap* map, const char* key, void* value);
 bool get(Hashmap* map, const char* key, void** out);
-void freeList(Node* list);
 void freeMap(Hashmap* map);
 
 #endif
