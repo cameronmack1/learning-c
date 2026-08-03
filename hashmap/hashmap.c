@@ -1,30 +1,12 @@
 #include "hashmap.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-// creation functions
-// init the hashmap with a size
-Hashmap* init(size_t size)
-{
-    Hashmap* map = malloc(sizeof(Hashmap));
-    if (map == NULL) {
-        printf("Failed to allocate memory");
-        return NULL;
-    }
-    map->buckets = calloc(size, sizeof(Node*));
-    if (map->buckets == NULL) {
-        free(map);
-        printf("Failed to allocate memory");
-        return NULL;
-    }
-    map->count = 0;
-    map->capacity = size;
-    return map;
-}
-
-// calculates the hash code of a string key (djb2)
-unsigned long hashCode(const char* key)
-{
+//calculates the hash code of a string key (djb2)
+unsigned long hashCode(const char* key) {
     unsigned long hash = 5381;
     const unsigned char* ptr = key;
     int c;
@@ -37,8 +19,7 @@ unsigned long hashCode(const char* key)
 }
 
 // helper for creating a node when adding one
-Node* createNode(const char* key, void* value)
-{
+Node* createNode(const char* key, void* value) {
     Node* node = malloc(sizeof(Node));
     // return error if malloc failed
     if (node == NULL) {
@@ -52,50 +33,8 @@ Node* createNode(const char* key, void* value)
     return node;
 }
 
-// add new value to map, using a string key and any value
-bool add(Hashmap* map, const char* key, void* value)
-{
-    if (map == NULL)
-        return false;
-    // calculate hash code
-    unsigned long code = hashCode(key) % map->capacity;
-    // add to hashmap
-    if (map->buckets[code] == NULL) {
-        // if it is a new bucket
-        // create node and return if its successful
-        map->buckets[code] = createNode(key, value);
-        map->count++;
-        // resize if we are >75% full
-        if (map->count * 4 > map->capacity * 3)
-            resize(map);
-        return map->buckets[code] != NULL;
-    }
-    else {
-        // handle collision
-        Node* prev = map->buckets[code];
-        Node* current = prev;
-        // loop through list to look for duplicate value to update
-        while (current != NULL) {
-            if (strcmp(current->key, key) == 0) {
-                current->value = value;
-                return true;
-            }
-            prev = current;
-            current = current->next;
-        }
-        // create node and return if its successful
-        prev->next = createNode(key, value);
-        map->count++;
-        // resize if we are >75% full
-        if (map->count * 4 > map->capacity * 3)
-            resize(map);
-        return prev->next != NULL;
-    }
-}
-
 // remove key value pair
-bool remove(Hashmap* map, const char* key)
-{
+bool rem(Hashmap* map, const char* key) {
     if (map == NULL || key == NULL)
         return false;
     // get hash code and bucket
@@ -130,58 +69,8 @@ bool remove(Hashmap* map, const char* key)
     return false;
 }
 
-// utility
-// gets a value from the hashmap and returns it to the out pointer, returns true if success
-bool get(Hashmap* map, const char* key, void** out)
-{
-    if (map == NULL || key == NULL)
-        return false;
-    // get hash code and bucket
-    unsigned long code = hashCode(key) % map->capacity;
-    Node* list = map->buckets[code];
-    // loop thru bucket until we find it
-    while (list != NULL) {
-        // check if key matches and pass it to the out pointer if it does
-        if (strcmp(list->key, key) == 0) {
-            if (out != NULL)
-                *out = list->value;
-            return true;
-        }
-        list = list->next;
-    }
-    // return a fail if it was not found
-    return false;
-}
-
-// memory
-// free a list
-void freeList(Node* list)
-{
-    if (list == NULL)
-        return;
-    Node* current = list;
-    Node* next;
-    // loop through and free the list
-    while (current != NULL) {
-        next = current->next;
-        free(current);
-        current = next;
-    }
-}
-
-// free the hashmap
-void freeMap(Hashmap* map)
-{
-    if (map == NULL)
-        return;
-    for (int i = 0; i < map->capacity; i++) {
-        freeList(map->buckets[i]);
-    }
-    free(map);
-}
-
-bool resize(Hashmap* map)
-{
+//resize buckets
+bool resize(Hashmap* map) {
     // create variables for both buckets
     Node** oldBuckets = map->buckets;
     Node** newBuckets = calloc(map->capacity * 2, sizeof(Node*));
@@ -217,4 +106,109 @@ bool resize(Hashmap* map)
 
     free(oldBuckets);
     return true;
+}
+
+// creation functions
+// init the hashmap with a size
+Hashmap* init(size_t size) {
+    Hashmap* map = malloc(sizeof(Hashmap));
+    if (map == NULL) {
+        printf("Failed to allocate memory");
+        return NULL;
+    }
+    map->buckets = calloc(size, sizeof(Node*));
+    if (map->buckets == NULL) {
+        free(map);
+        printf("Failed to allocate memory");
+        return NULL;
+    }
+    map->count = 0;
+    map->capacity = size;
+    return map;
+}
+
+// add new value to map, using a string key and any value
+bool add(Hashmap* map, const char* key, void* value) {
+    if (map == NULL)
+        return false;
+    // calculate hash code
+    unsigned long code = hashCode(key) % map->capacity;
+    // add to hashmap
+    if (map->buckets[code] == NULL) {
+        // if it is a new bucket
+        // create node and return if its successful
+        map->buckets[code] = createNode(key, value);
+        map->count++;
+        // resize if we are >75% full
+        if (map->count * 4 > map->capacity * 3) 
+            resize(map);
+        return map->buckets[code] != NULL;
+    } else {
+        // handle collision
+        Node* prev = map->buckets[code];
+        Node* current = prev;
+        // loop through list to look for duplicate value to update
+        while (current != NULL) {
+            if (strcmp(current->key, key) == 0) {
+                current->value = value;
+                return true;
+            }
+            prev = current;
+            current = current->next;
+        }
+        // create node and return if its successful
+        prev->next = createNode(key, value);
+        map->count++;
+        // resize if we are >75% full
+        if (map->count * 4 > map->capacity * 3)
+            resize(map);
+        return prev->next != NULL;
+    }
+}
+
+// utility
+// gets a value from the hashmap and returns it to the out pointer, returns true if success
+bool get(Hashmap* map, const char* key, void** out) {
+    if (map == NULL || key == NULL)
+        return false;
+    // get hash code and bucket
+    unsigned long code = hashCode(key) % map->capacity;
+    Node* list = map->buckets[code];
+    // loop thru bucket until we find it
+    while (list != NULL) {
+        // check if key matches and pass it to the out pointer if it does
+        if (strcmp(list->key, key) == 0) {
+            if (out != NULL)
+                *out = list->value;
+            return true;
+        }
+        list = list->next;
+    }
+    // return a fail if it was not found
+    return false;
+}
+
+// memory
+// free a list
+void freeList(Node* list) {
+    if (list == NULL)
+        return;
+    Node* current = list;
+    Node* next;
+    // loop through and free the list
+    while (current != NULL) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
+// free the hashmap
+void freeMap(Hashmap* map) {
+    if (map == NULL)
+        return;
+    for (int i = 0; i < map->capacity; i++) {
+        freeList(map->buckets[i]);
+    }
+    free(map);
 }
