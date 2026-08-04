@@ -38,31 +38,12 @@ typedef struct {
     int y;
 } Position;
 
-void move_snake(Position* snake, int snake_len, Direction dir) {
-    // set dx and dy based on direction
-    int8_t dx = 0;
-    int8_t dy = 0;
-    switch (dir) {
-    case UP: {
-        dy = -1;
-        break;
-    }
-    case LEFT: {
-        dx = -1;
-        break;
-    }
-    case DOWN: {
-        dy = 1;
-        break;
-    }
-    case RIGHT: {
-        dx = 1;
-        break;
-    }
-    }
+void move_snake(Position* snake, int snake_len, int8_t dx, int8_t dy) {
+    // move last spot to second last, etc
     for (int i = snake_len - 1; i > 0; i--) {
         snake[i] = (Position) { .y = snake[i - 1].y, .x = snake[i - 1].x };
     }
+    // move snake head
     snake[0].y += dy;
     snake[0].x += dx;
 }
@@ -124,6 +105,7 @@ int main() {
     int player_x = game_col / 2;
     int player_y = game_row / 2;
     Direction player_input = UP;
+    bool is_dead = true;
 
     snake[0] = (Position) { .x = player_x, .y = player_y };
     snake[1] = (Position) { .x = player_x - 1, .y = player_y };
@@ -192,17 +174,55 @@ int main() {
         while (ch != ERR) {
             ch = getch();
         }
+        if(is_dead)
+            continue;
 
         // if players input is perpendicular to current moving direction
         if ((((int8_t)player_input - (int8_t)player_direction) + 4) % 4 != 2) {
             player_direction = player_input;
         }
 
-        move_snake(snake, snake_length, player_direction);
-        
         // check for collisions
-        if(snake[0].x == apple_x && snake[0].y == apple_y){
-            snake[snake_length] = (Position){.y = snake[snake_length - 1].y, .x = snake[snake_length - 1].x};
+        // get where the snake head will be on the next frame
+        int8_t dx = 0;
+        int8_t dy = 0;
+        switch (player_direction) {
+        case UP: {
+            dy = -1;
+            break;
+        }
+        case LEFT: {
+            dx = -1;
+            break;
+        }
+        case DOWN: {
+            dy = 1;
+            break;
+        }
+        case RIGHT: {
+            dx = 1;
+            break;
+        }
+        }
+        int nx = snake[0].x + dx;
+        int ny = snake[0].y + dy;
+        // head and body collisions
+        for (int i = 1; i < snake_length; i++) {
+            if (nx == snake[i].x && ny == snake[i].y) {
+                is_dead = true;
+            }
+        }
+
+        // head and wall collisions
+        if(nx < 1 || nx > game_col || ny < 1 || ny > game_row){
+            is_dead = true;
+        }
+
+        move_snake(snake, snake_length, dx, dy);
+
+        // apple collisions
+        if (snake[0].x == apple_x && snake[0].y == apple_y) {
+            snake[snake_length] = (Position) { .y = snake[snake_length - 1].y, .x = snake[snake_length - 1].x };
             snake_length++;
             get_valid_apple(snake, snake_length, game_col, game_row, &apple_x, &apple_y);
         }
