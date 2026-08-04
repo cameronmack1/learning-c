@@ -38,6 +38,40 @@ typedef struct {
     int y;
 } Position;
 
+void move_snake(Position* snake, int snake_len, Direction dir, bool ate){
+    //set dx and dy based on direction
+    int8_t dx = 0;
+    int8_t dy = 0;
+    switch(dir) {
+        case UP: {
+            dy = -1;
+            break;
+        }
+        case LEFT: {
+            dx = -1;
+            break;
+        }
+        case DOWN: {
+            dy = 1;
+            break;
+        }
+        case RIGHT: {
+            dx = 1;
+            break;
+        }
+    }
+    if(ate){
+        snake[snake_len].y = snake[snake_len - 1].y;
+        snake[snake_len].x = snake[snake_len - 1].x;
+    }
+
+    for(int i = snake_len - !ate; i > 0; i--){
+        snake[i] = (Position){.y = snake[i - 1].y, .x = snake[i - 1].x};
+    }
+    snake[0].y += dy;
+    snake[0].x += dx;
+}
+
 int main(){
     srand(time(NULL));
     //init screen
@@ -51,20 +85,19 @@ int main(){
     //makes input reading non-blocking so the game runs without waiting for input
     nodelay(stdscr, TRUE);
 
-    const int FRAME_DELAY = 1000/60;
+    const int FRAME_DELAY = 1000/10;
 
     //create window
     int max_row, max_col;
-    int game_row, game_col;
     getmaxyx(stdscr, max_row, max_col); 
     //leave 5 rows at the top, and then the border around the screen
-    game_row = max_row - 7;
+    const int game_row = max_row - 7;
     //player is 2 wide to make it square shaped
-    game_col = max_col/2 - 1;
+    const int game_col = max_col/2 - 1;
     start_color();
     WINDOW* game_window = newwin(max_row - 5, max_col, 5, 0);
 
-    int max_length = game_row * game_col;
+    const int max_length = game_row * game_col;
     int snake_length = 3;
     Position snake[max_length];
 
@@ -72,10 +105,10 @@ int main(){
     int ch;
 
     //player variables
-    Direction player_direction;
+    Direction player_direction = UP;
     int player_x = game_col/2;
     int player_y = game_row/2;
-    Direction player_input;
+    Direction player_input = UP;
 
     snake[0] = (Position){.x = player_x, .y = player_y};
     snake[1] = (Position){.x = player_x - 1, .y = player_y};
@@ -91,7 +124,7 @@ int main(){
     //game loop
     while(1){
         //erase last frame
-        erase();
+        werase(game_window);
 
         //input
         ch = getch();
@@ -101,6 +134,7 @@ int main(){
             case 'W':
             case 'w': {
                 player_input = 0;
+                break;
             }
 
             //left
@@ -108,6 +142,7 @@ int main(){
             case 'A':
             case 'a': {
                 player_input = 1;
+                break;
             }
 
             //down
@@ -115,6 +150,7 @@ int main(){
             case 'S':
             case 's': {
                 player_input = 2;
+                break;
             }
 
             //right
@@ -122,6 +158,7 @@ int main(){
             case 'D':
             case 'd': {
                 player_input = 3;
+                break;
             }
 
             //quit
@@ -136,13 +173,19 @@ int main(){
             ch = getch();
         }
 
+        //if players input is perpendicular to current moving direction
+        if((( (int8_t)player_input - (int8_t)player_direction) + 4) % 4 != 2){
+            player_direction = player_input;
+        }
+        move_snake(snake, snake_length, player_direction, false);
+
         //rendering
         //border
         box(game_window, 0, 0);
 
         //snake head
         wattron(game_window, COLOR_PAIR(SNAKE_HEAD));
-        mvwprintw(game_window, player_y, player_x * 2, "##");
+        mvwprintw(game_window, snake[0].y, snake[0].x * 2, "##");
         wattroff(game_window, COLOR_PAIR(SNAKE_HEAD));
 
         //snake body
@@ -152,7 +195,11 @@ int main(){
         }
         wattroff(game_window, COLOR_PAIR(SNAKE_BODY));
 
-        wrefresh(game_window);
+        //update game window
+        wnoutrefresh(game_window);
+
+        //push changes to terminal screen
+        doupdate();
         sleep_ms(FRAME_DELAY);
     }
 
