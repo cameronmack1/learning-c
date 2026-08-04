@@ -17,6 +17,7 @@
 #include <time.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef enum EDirection{
     UP,
@@ -40,7 +41,11 @@ int main(){
 
     const int FRAME_DELAY = 1000/60;
     int max_row, max_col;
+    int game_row, game_col;
     getmaxyx(stdscr, max_row, max_col); 
+    game_row = max_row - 5;
+    game_col = max_col;
+    WINDOW* game_window = newwin(max_row - 5, max_col, 5, 0);
 
     //input variable
     int ch;
@@ -99,7 +104,10 @@ int main(){
             ch = getch();
         }
 
-        refresh();
+        //rendering
+        box(game_window, 0, 0);
+
+        wrefresh(game_window);
         sleep_ms(FRAME_DELAY);
     }
 
