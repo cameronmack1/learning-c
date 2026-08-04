@@ -14,6 +14,7 @@
 #include <unistd.h>
 #define sleep_ms(ms) usleep(ms * 1000);
 #endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -31,7 +32,8 @@ typedef enum {
     APPLE,
     SNAKE_HEAD,
     SNAKE_BODY,
-    SCORE_TEXT
+    SCORE_TEXT,
+    LOSE_WINDOW
 } Color;
 
 typedef struct {
@@ -87,7 +89,7 @@ int main() {
     // create window
     int max_row, max_col;
     getmaxyx(stdscr, max_row, max_col);
-    if((max_col & 1) == 0){
+    if ((max_col & 1) == 0) {
         max_col--;
     }
     // leave 5 rows at the top, and then the border around the screen
@@ -97,6 +99,7 @@ int main() {
     start_color();
     WINDOW* game_window = newwin(max_row - 5, max_col, 5, 0);
     WINDOW* score_window = newwin(5, 30, 0, (max_col / 2) - 15);
+    WINDOW* lose_window = newwin(5, 30, (max_row / 2) - 1, (max_col / 2) - 15);
 
     const int max_length = game_row * game_col;
     int snake_length = 3;
@@ -131,6 +134,9 @@ int main() {
     init_pair(SNAKE_BODY, COLOR_YELLOW, COLOR_YELLOW);
     // score text
     init_pair(SCORE_TEXT, COLOR_GREEN, COLOR_BLACK);
+    // score text
+    init_pair(LOSE_WINDOW, COLOR_RED, COLOR_BLACK);
+
     // game loop
     while (1) {
         // erase last frame
@@ -268,13 +274,25 @@ int main() {
 
         int length = snprintf(NULL, 0, "Score: %d", score);
 
-        //bold doesnt work on all terminals
+        // bold doesnt work on all terminals
         wattron(score_window, (A_BOLD | COLOR_PAIR(SCORE_TEXT)));
         mvwprintw(score_window, 2, (30 - length) / 2, "Score: %d", score);
         wattroff(score_window, (A_BOLD | COLOR_PAIR(SCORE_TEXT)));
 
         // update window
         wnoutrefresh(score_window);
+
+        // rendering lose window
+        if (is_dead) {
+            wattron(lose_window, COLOR_PAIR(LOSE_WINDOW));
+            box(lose_window, 0, 0);
+
+            
+            mvwprintw(lose_window, 2, 10, "You Lose!");
+            wattroff(lose_window, COLOR_PAIR(LOSE_WINDOW));
+
+            wnoutrefresh(lose_window);
+        }
 
         // push changes to terminal screen
         doupdate();
