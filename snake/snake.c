@@ -18,12 +18,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef enum EDirections{
+typedef enum EDirection{
     UP,
     LEFT,
     DOWN,
     RIGHT
-} Directions;
+} Direction;
 
 int main(){
     srand(time(NULL));
@@ -39,62 +39,65 @@ int main(){
     nodelay(stdscr, TRUE);
 
     const int FRAME_DELAY = 1000/60;
+    int max_row, max_col;
+    getmaxyx(stdscr, max_row, max_col); 
 
-    //UP, LEFT, DOWN, RIGHT, QUIT
-    bool keys[5] = {0, 0, 0, 0, 0};
+    //input variable
     int ch;
+
+    //player variables
+    Direction player_direction;
+    int player_x;
+    int player_y;
+    Direction player_input;
 
     //game loop
     while(1){
         //erase last frame
         erase();
-        //reset input array and lower the delay timer on each one
-        for(int i = 0; i < 5; i++){
-            keys[i] = 0;
-        }
 
+        //input
         ch = getch();
-        while(ch != ERR){
-            switch(ch){
-                case KEY_UP:
-                case 'W':
-                case 'w': {
-                    keys[0] = true;
-                    break;
-                }
-
-                case KEY_LEFT:
-                case 'A':
-                case 'a': {
-                    keys[1] = true;
-                    break;
-                }
-
-                case KEY_DOWN:
-                case 'S':
-                case 's': {
-                    keys[2] = true;
-                    break;
-                }
-
-                case KEY_RIGHT:
-                case 'D':
-                case 'd': {
-                    keys[3] = true;
-                    break;
-                }
-
-                case 'Q':
-                case 'q': {
-                    keys[4] = true;
-                    break;
-                }
-
+        switch (ch) {
+            //up
+            case KEY_UP:
+            case 'W':
+            case 'w': {
+                player_input = 0;
             }
+
+            //left
+            case KEY_LEFT:
+            case 'A':
+            case 'a': {
+                player_input = 1;
+            }
+
+            //down
+            case KEY_DOWN:
+            case 'S':
+            case 's': {
+                player_input = 2;
+            }
+
+            //right
+            case KEY_RIGHT:
+            case 'D':
+            case 'd': {
+                player_input = 3;
+            }
+
+            //quit
+            case 'Q':
+            case 'q': {
+                endwin();
+                return(0);
+            }
+        }
+        //clear input buffer to remove frame lag
+        while(ch != ERR){
             ch = getch();
         }
-        if(keys[4])
-            break;
 
         refresh();
         sleep_ms(FRAME_DELAY);
