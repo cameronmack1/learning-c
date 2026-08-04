@@ -30,7 +30,8 @@ typedef enum {
     DEFAULT,
     APPLE,
     SNAKE_HEAD,
-    SNAKE_BODY
+    SNAKE_BODY,
+    SCORE_TEXT
 } Color;
 
 typedef struct {
@@ -53,8 +54,8 @@ void get_valid_apple(Position* snake, int snake_len, int col, int row, int* outx
     bool is_valid = false;
     while (!is_valid) {
         is_valid = true;
-        test_x = rand() % col + 1;
-        test_y = rand() % row + 1;
+        test_x = (rand() % col) + 1;
+        test_y = (rand() % row) + 1;
 
         for (int i = 0; i < snake_len; i++) {
             if (test_x == snake[i].x && test_y == snake[i].y) {
@@ -86,12 +87,16 @@ int main() {
     // create window
     int max_row, max_col;
     getmaxyx(stdscr, max_row, max_col);
+    if((max_col & 1) == 0){
+        max_col--;
+    }
     // leave 5 rows at the top, and then the border around the screen
     const int game_row = max_row - 7;
     // player is 2 wide to make it square shaped
     const int game_col = max_col / 2 - 1;
     start_color();
     WINDOW* game_window = newwin(max_row - 5, max_col, 5, 0);
+    WINDOW* score_window = newwin(5, 30, 0, (max_col / 2) - 15);
 
     const int max_length = game_row * game_col;
     int snake_length = 3;
@@ -105,7 +110,8 @@ int main() {
     int player_x = game_col / 2;
     int player_y = game_row / 2;
     Direction player_input = UP;
-    bool is_dead = true;
+    bool is_dead = false;
+    int score = 0;
 
     snake[0] = (Position) { .x = player_x, .y = player_y };
     snake[1] = (Position) { .x = player_x - 1, .y = player_y };
@@ -123,6 +129,8 @@ int main() {
     init_pair(SNAKE_HEAD, COLOR_GREEN, COLOR_GREEN);
     // snake body
     init_pair(SNAKE_BODY, COLOR_YELLOW, COLOR_YELLOW);
+    // score text
+    init_pair(SCORE_TEXT, COLOR_GREEN, COLOR_BLACK);
     // game loop
     while (1) {
         // erase last frame
@@ -174,60 +182,63 @@ int main() {
         while (ch != ERR) {
             ch = getch();
         }
-        if(is_dead)
-            continue;
+        if (!is_dead) {
 
-        // if players input is perpendicular to current moving direction
-        if ((((int8_t)player_input - (int8_t)player_direction) + 4) % 4 != 2) {
-            player_direction = player_input;
-        }
+            // if players input is perpendicular to current moving direction
+            if ((((int8_t)player_input - (int8_t)player_direction) + 4) % 4 != 2) {
+                player_direction = player_input;
+            }
 
-        // check for collisions
-        // get where the snake head will be on the next frame
-        int8_t dx = 0;
-        int8_t dy = 0;
-        switch (player_direction) {
-        case UP: {
-            dy = -1;
-            break;
-        }
-        case LEFT: {
-            dx = -1;
-            break;
-        }
-        case DOWN: {
-            dy = 1;
-            break;
-        }
-        case RIGHT: {
-            dx = 1;
-            break;
-        }
-        }
-        int nx = snake[0].x + dx;
-        int ny = snake[0].y + dy;
-        // head and body collisions
-        for (int i = 1; i < snake_length; i++) {
-            if (nx == snake[i].x && ny == snake[i].y) {
+            // check for collisions
+            // get where the snake head will be on the next frame
+            int8_t dx = 0;
+            int8_t dy = 0;
+            switch (player_direction) {
+            case UP: {
+                dy = -1;
+                break;
+            }
+            case LEFT: {
+                dx = -1;
+                break;
+            }
+            case DOWN: {
+                dy = 1;
+                break;
+            }
+            case RIGHT: {
+                dx = 1;
+                break;
+            }
+            }
+            int nx = snake[0].x + dx;
+            int ny = snake[0].y + dy;
+            // head and body collisions
+            for (int i = 1; i < snake_length; i++) {
+                if (nx == snake[i].x && ny == snake[i].y) {
+                    is_dead = true;
+                }
+            }
+
+            // head and wall collisions
+            if (nx < 1 || nx > game_col || ny < 1 || ny > game_row) {
                 is_dead = true;
+            }
+
+            // move because we will not die
+            if (!is_dead)
+                move_snake(snake, snake_length, dx, dy);
+
+            // apple collisions
+            if (snake[0].x == apple_x && snake[0].y == apple_y) {
+                snake[snake_length] = (Position) { .y = snake[snake_length - 1].y, .x = snake[snake_length - 1].x };
+                snake_length++;
+                get_valid_apple(snake, snake_length, game_col, game_row, &apple_x, &apple_y);
+                score++;
             }
         }
 
-        // head and wall collisions
-        if(nx < 1 || nx > game_col || ny < 1 || ny > game_row){
-            is_dead = true;
-        }
-
-        move_snake(snake, snake_length, dx, dy);
-
-        // apple collisions
-        if (snake[0].x == apple_x && snake[0].y == apple_y) {
-            snake[snake_length] = (Position) { .y = snake[snake_length - 1].y, .x = snake[snake_length - 1].x };
-            snake_length++;
-            get_valid_apple(snake, snake_length, game_col, game_row, &apple_x, &apple_y);
-        }
-
-        // rendering
+        // rendering game window
         // border
         box(game_window, 0, 0);
 
@@ -250,6 +261,20 @@ int main() {
 
         // update game window
         wnoutrefresh(game_window);
+
+        // rendering score window
+        // border
+        box(score_window, 0, 0);
+
+        int length = snprintf(NULL, 0, "Score: %d", score);
+
+        //bold doesnt work on all terminals
+        wattron(score_window, (A_BOLD | COLOR_PAIR(SCORE_TEXT)));
+        mvwprintw(score_window, 2, (30 - length) / 2, "Score: %d", score);
+        wattroff(score_window, (A_BOLD | COLOR_PAIR(SCORE_TEXT)));
+
+        // update window
+        wnoutrefresh(score_window);
 
         // push changes to terminal screen
         doupdate();
