@@ -1,6 +1,9 @@
+#ifndef GAME_H
+#define GAME_H
 #include <stdbool.h>
 
 typedef enum {
+    PIECE_NOTHING,
     PIECE_I,
     PIECE_T,
     PIECE_O,
@@ -25,3 +28,5 @@ typedef struct {
     int lines;
     bool game_over;
 } Game;
+
+#endif
