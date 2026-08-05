@@ -9,19 +9,32 @@ if %errorlevel% equ 1 (
     echo Please install MSYS2 or MinGW
     exit /b 1
 )
+rem check msys64 ucrt64 path
+if exist "C:\msys64\ucrt64\include\pdcurses\curses.h" (
+    set "FOUND_INCLUDE=C:\msys64\ucrt64\include"
+    set "FOUND_LIB=C:\msys64\ucrt64\lib"
+    goto :found
+)
 
-rem check for pdcurses install in compiler include path
-for %%G in (
-    "C:\msys64\ucrt64\include\pdcurses\curses.h"
-    "C:\msys64\mingw64\include\pdcurses\curses.h"
-    "C:\MinGW\include\curses.h"
-    "%~dp0include\curses.h"
-) do (
-    if exist "%%~G" (
-        rem %%~dpG gets the folder of the file
-        set "FOUND_PATH=%%~dpG"
-        goto :found
-    )
+rem check msys64 mingw64 path
+if exist "C:\msys64\mingw64\include\pdcurses\curses.h" (
+    set "FOUND_INCLUDE=C:\msys64\mingw64\include"
+    set "FOUND_LIB=C:\msys64\mingw64\lib"
+    goto :found
+)
+
+rem check mingw path
+if exist "C:\MinGW\include\curses.h" (
+    set "FOUND_INCLUDE=C:\MinGW\include"
+    set "FOUND_LIB=C:\MinGW\lib"
+    goto :found
+)
+
+rem check project path
+if exist "%~dp0include\curses.h" (
+    set "FOUND_INCLUDE=%~dp0include"
+    set "FOUND_LIB=%~dp0lib"
+    goto :found
 )
 
 rem exit if pdcurses not found
@@ -32,7 +45,7 @@ exit /b 1
 :found
 
 rem build snake.c using gcc
-gcc snake.c -g -Wall -Wextra -I%FOUND_PATH% -lpdcurses -o snake.exe
+gcc snake.c -g -Wall -Wextra -I"%FOUND_PATH%" -L"%FOUND_LIB%" -lpdcurses -o snake.exe
 
 if %errorlevel% equ 1 (
     echo compilation failed
