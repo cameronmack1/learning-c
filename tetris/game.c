@@ -1,42 +1,87 @@
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <time.h>
 #include "game.h"
 #include "pieces.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
 
-void spawn_next_piece(Game* game){
-    //spawn a new piece into game->next
-    //generate random piece
+#define SPAWN_X 3;
+#define SPAWN_Y -1;
+
+#define MAX_X 10;
+#define MAX_Y 20;
+
+void spawn_next_piece(Game* game) {
+    // spawn a new piece into game->next
+    // generate random piece
     game->next.type = rand() % 7 + 1;
-    //copy from pieces to next
+    // copy from pieces to next
     memcpy(game->next.shape, piece_shapes[game->next.type], sizeof(game->next.shape));
 }
 
-void to_next_piece(Game* game){
-    //move next piece to current and spawn the next piece
-    //move next to current
+void to_next_piece(Game* game) {
+    // move next piece to current and spawn the next piece
+    // move next to current
     memcpy(&game->current, &game->next, sizeof(game->next));
-    //spawn next one
+    game->current.x = SPAWN_X;
+    game->current.y = SPAWN_Y;
+    // spawn next one
     spawn_next_piece(game);
 }
 
-bool init(Game** out){
-    //initialize a game board, and pass to out pointer
+bool check_lock(Game* game, Piece piece) {
+    // checks if a piece should lock when moving down
+}
 
-    //allocate memory and initialize to 0
+bool check_collision(Game* game, int dx) {
+    // checks if a piece can move left/right
+}
+
+bool drop_block(Piece* piece) {
+    // returns true if the block is hitting the ground, else moves it down a block
+}
+
+bool init(Game** out) {
+    // initialize a game board, and pass to out pointer
+
+    // allocate memory and initialize to 0
     Game* game = calloc(1, sizeof(Game));
-    if(game == NULL){
+    if (game == NULL) {
         return false;
     }
-    
-    //create new block
-    game->current.type = rand() % 7 + 1;
-    memcpy(game->current.shape, piece_shapes[game->current.type], sizeof(game->current.shape));
 
-    game->next.type = rand() % 7 + 1;
+    // create new block
+    spawn_next_piece(game);
+    to_next_piece(game);
 
-    //pass output pointer
+    // pass output pointer
     *out = game;
     return true;
+}
+
+void tick(Game* game, bool input[6]) {
+    // tick the game
+    // check player input
+    // left, right, rotate cw, rotate ccw, hard drop, soft drop
+
+    int dx = input[1] - input[0]; // left and right cancel out
+    if (dx != 0) {
+        // if one of left or right is being pressed
+        if (!check_collision(game, dx)) {
+            // if we can move there
+            game->current.x += dx;
+        }
+    }
+    
+    //fall 1 space per tick if fast falling, else 1 space per 20 ticks (3/sec)
+    game->fall_tick = input[5] ? 1 : 20;
+
+    // block dropping
+    if (game->tick_counter > game->fall_tick) {
+        if (drop_block(game)) {
+            // if block has fallen down into a block, then lock it
+            to_next_piece(game);
+        }
+    }
+
+    game->tick_counter++;
 }

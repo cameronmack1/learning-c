@@ -27,6 +27,8 @@ typedef struct {
     int score;
     int lines;
     bool game_over;
+    int tick_counter;
+    int fall_tick;
 } Game;
 
 #endif
