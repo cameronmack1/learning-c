@@ -18,14 +18,35 @@ void spawn_next_piece(Game* game) {
     memcpy(game->next.shape, piece_shapes[game->next.type], sizeof(game->next.shape));
 }
 
-void to_next_piece(Game* game) {
+bool to_next_piece(Game* game) {
+    // returns true if game over
     // move next piece to current and spawn the next piece
+    // add current to board
+    int x_pos = game->current.x;
+    int y_pos = game->current.y;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (game->current.shape[i][j]) {
+                int ny = y_pos + i;
+                int nx = x_pos + j;
+                //game over if a piece locks above top of map
+                if (ny < 0)
+                    return true;
+
+                if (nx < 0 || nx >= MAX_X || ny >= MAX_Y) //shouldnt happen
+                    continue;
+                // set board value
+                game->board[ny][nx] = game->current.type;
+            }
+        }
+    }
     // move next to current
     memcpy(&game->current, &game->next, sizeof(game->next));
     game->current.x = SPAWN_X;
     game->current.y = SPAWN_Y;
     // spawn next one
     spawn_next_piece(game);
+    return false;
 }
 
 bool check_lock(Game* game, Piece* piece) {
@@ -43,7 +64,7 @@ bool check_lock(Game* game, Piece* piece) {
 
             if (ny >= MAX_Y)
                 return true;
-            //make sure the pos is valid, and check if that spot on the board is occupied
+            // make sure the pos is valid, and check if that spot on the board is occupied
             if (nx >= 0 && nx < MAX_X && ny >= 0 && game->board[ny][nx]) {
                 return true;
             }
@@ -58,7 +79,11 @@ bool check_collision(Game* game, int dx) {
 
 bool drop_block(Game* game, Piece* piece) {
     // returns true if the block is hitting the ground, else moves it down a block
-    if (check_lock(game, piece))
+    if (check_lock(game, piece)) {
+        return true;
+    }
+    piece->y++;
+    return false;
 }
 
 int hard_fall_block(Game* game) {
@@ -102,7 +127,7 @@ void tick(Game* game, bool input[6]) {
 
     // block dropping
     if (game->tick_counter > game->fall_tick) {
-        if (drop_block(game)) {
+        if (drop_block(game, &game->current)) {
             // if block has fallen down into a block, then lock it
             to_next_piece(game);
         }

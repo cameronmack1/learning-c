@@ -14,21 +14,21 @@ typedef enum {
 } PieceType;
 
 typedef struct {
-    bool shape[4][4];
     int x;
     int y;
     PieceType type;
+    bool shape[4][4];
 } Piece;
 
 typedef struct {
-    PieceType board[20][10];
     Piece current;
     Piece next;
+    PieceType board[20][10];
     int score;
     int lines;
-    bool game_over;
     int tick_counter;
     int fall_tick;
+    bool game_over;
 } Game;
 
 #endif
