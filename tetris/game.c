@@ -251,5 +251,46 @@ void tick(Game* game, bool input[6]) {
     }
     game->holding_hard = input[4];
 
+    // check for lines
+    int num_lines = 0;
+    for (int i = 19; i >= 0; i--) {
+        for (int j = 0; j < 10; j++) {
+            // break to next if there is a hole
+            if (game->board[i][j] == 0)
+                break;
+            // if we reached the end of the line, then it is full
+            if (j == 9) {
+                num_lines++;
+                // shift every row down
+                for (int k = i; k > 0; k--) {
+                    memcpy(game->board[k], game->board[k - 1], sizeof(game->board[k]));
+                }
+                // wipe top row
+                memset(game->board[0], 0, sizeof(game->board[0]));
+
+                // check current row again cuz theres something new there
+                i++;
+            }
+        }
+    }
+    switch (num_lines) {
+    case 1: {
+        game->score += 100;
+        break;
+    }
+    case 2: {
+        game->score += 300;
+        break;
+    }
+    case 3: {
+        game->score += 500;
+        break;
+    }
+    case 4: {
+        game->score += 800;
+        break;
+    }
+    }
+
     game->tick_counter++;
 }
