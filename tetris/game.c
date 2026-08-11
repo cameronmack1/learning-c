@@ -2,6 +2,7 @@
 #include "pieces.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define SPAWN_X 3
@@ -113,19 +114,19 @@ void reverse_row(Piece* piece) {
 void rotate_cw(Piece* piece) {
     // transpose, then reverse each row
     // O piece does not rotate
-    if(piece->type == PIECE_O)
+    if (piece->type == PIECE_O)
         return;
-    transpose(piece->shape);
+    transpose(piece);
     reverse_row(piece);
 }
 
 void rotate_ccw(Piece* piece) {
     // reverse each row, then transpose
     // O piece does not rotate
-    if(piece->type == PIECE_O)
+    if (piece->type == PIECE_O)
         return;
     reverse_row(piece);
-    transpose(piece->shape);
+    transpose(piece);
 }
 
 int hard_fall_block(Game* game) {
@@ -148,28 +149,34 @@ bool init(Game** out) {
 
     // create new block
     spawn_next_piece(game);
-    to_next_piece(game);
+    // move next block to current
+    memcpy(&game->current, &game->next, sizeof(game->next));
+    // set pos
+    game->current.x = SPAWN_X;
+    game->current.y = SPAWN_Y;
+    // create next
+    spawn_next_piece(game);
 
     // pass output pointer
     *out = game;
     return true;
 }
 
-bool wall_kick(Game* game, Piece* piece){
-    //move and returnt true if possible value found, return false otherwise
-    //O piece does not change when rotating
+bool wall_kick(Game* game, Piece* piece) {
+    // move and returnt true if possible value found, return false otherwise
+    // O piece does not change when rotating
     int kick_values[5][2];
-    //different kick values for different pieces
-    if(piece->type == PIECE_O)
+    // different kick values for different pieces
+    if (piece->type == PIECE_O)
         return true;
-    if(piece->type == PIECE_I){
+    if (piece->type == PIECE_I) {
         memcpy(kick_values, line_kick_values, sizeof(kick_values));
     } else {
         memcpy(kick_values, reg_kick_values, sizeof(kick_values));
     }
-    //check each kick value
-    for(int i = 0; i < 5; i++){
-        if(!check_collision(game, piece, kick_values[i][0], kick_values[i][1])){
+    // check each kick value
+    for (int i = 0; i < 5; i++) {
+        if (!check_collision(game, piece, kick_values[i][0], kick_values[i][1])) {
             piece->x += kick_values[i][0];
             piece->y += kick_values[i][1];
             return true;
@@ -186,11 +193,11 @@ void tick(Game* game, bool input[6]) {
     // handle rotation
     if (input[2]) {
         rotate_cw(&game->current);
-        if(!wall_kick(game, &game->current))
+        if (!wall_kick(game, &game->current))
             rotate_ccw(&game->current);
     } else if (input[3]) {
         rotate_ccw(&game->current);
-        if(!wall_kick(game, &game->current))
+        if (!wall_kick(game, &game->current))
             rotate_cw(&game->current);
     }
 
@@ -209,11 +216,22 @@ void tick(Game* game, bool input[6]) {
 
     // block dropping
     if (game->tick_counter > game->fall_tick) {
+        // reset tick counter to 0
+        game->tick_counter = 0;
         if (drop_block(game, &game->current)) {
             // if block has fallen down into a block, then lock it
             to_next_piece(game);
         }
     }
+
+    if (input[4] && !game->holding_hard) {
+        game->holding_hard = true;
+        while (!drop_block(game, &game->current)) {
+            // no body
+        }
+        to_next_piece(game);
+    }
+    game->holding_hard = input[4];
 
     game->tick_counter++;
 }

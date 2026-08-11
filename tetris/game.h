@@ -29,6 +29,7 @@ typedef struct {
     int tick_counter;
     int fall_tick;
     bool game_over;
+    bool holding_hard;
 } Game;
 
 #endif
