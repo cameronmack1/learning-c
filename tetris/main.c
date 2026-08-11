@@ -61,6 +61,8 @@ int main() {
             // quit
             case 'Q':
             case 'q': {
+                free(game);
+
                 endwin();
                 return (0);
             }
@@ -111,10 +113,17 @@ int main() {
         box(game_window, 0, 0);
 
         //draw current piece
+        for(int i = 0; i < 4; i ++){
+            for(int j = 0; j < 4; j++){
+                if(game->current.shape[i][j]){
+                    mvwprintw(game_window, game->current.y + i, (game->current.x + j) * 2, "##");
+                }
+            }
+        }
 
         // update game window
         wnoutrefresh(game_window);
-
+        
         // update screen
         doupdate();
         // sleep until next frame

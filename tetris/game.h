@@ -35,5 +35,7 @@ typedef struct {
 
 void tick(Game* game, bool input[6]);
 bool init(Game** out);
+void spawn_next_piece(Game* game); 
+bool to_next_piece(Game* game);
 
 #endif

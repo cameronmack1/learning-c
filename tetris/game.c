@@ -16,7 +16,11 @@ void spawn_next_piece(Game* game) {
     // generate random piece
     game->next.type = rand() % 7 + 1;
     // copy from pieces to next
-    memcpy(game->next.shape, piece_shapes[game->next.type], sizeof(game->next.shape));
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            game->next.shape[i][j] = piece_shapes[game->next.type][i][j];
+        }
+    }
 }
 
 bool to_next_piece(Game* game) {
@@ -42,7 +46,11 @@ bool to_next_piece(Game* game) {
         }
     }
     // move next to current
-    memcpy(&game->current, &game->next, sizeof(game->next));
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            game->current.shape[i][j] = game->next.shape[i][j];
+        }
+    }
     game->current.x = SPAWN_X;
     game->current.y = SPAWN_Y;
     // spawn next one
@@ -143,14 +151,17 @@ bool init(Game** out) {
 
     // allocate memory and initialize to 0
     Game* game = calloc(1, sizeof(Game));
-    if (game == NULL) {
+    if (game == NULL)
         return false;
-    }
 
     // create new block
     spawn_next_piece(game);
     // move next block to current
-    memcpy(&game->current, &game->next, sizeof(game->next));
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            game->current.shape[i][j] = game->next.shape[i][j];
+        }
+    }
     // set pos
     game->current.x = SPAWN_X;
     game->current.y = SPAWN_Y;
@@ -215,7 +226,7 @@ void tick(Game* game, bool input[6]) {
     game->fall_tick = input[5] ? 1 : 20;
 
     // block dropping
-    if (game->tick_counter > game->fall_tick) {
+    if (game->tick_counter >= game->fall_tick) {
         // reset tick counter to 0
         game->tick_counter = 0;
         if (drop_block(game, &game->current)) {
@@ -225,9 +236,9 @@ void tick(Game* game, bool input[6]) {
     }
 
     if (input[4] && !game->holding_hard) {
-        //reset tick counter
+        // reset tick counter
         game->tick_counter = 0;
-        //prevent next block from dropping instantly
+        // prevent next block from dropping instantly
         game->holding_hard = true;
         while (!drop_block(game, &game->current)) {
             // no body
