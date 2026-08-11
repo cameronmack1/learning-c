@@ -47,8 +47,30 @@ int main() {
     int max_row, max_col;
     getmaxyx(stdscr, max_row, max_col);
 
-    start_color();
+    // start color
+    if (start_color() == ERR) {
+        endwin();
+        printf("start_color() failed\n");
+        return 1;
+    }
+
+    // exit if no colors
+    if (!has_colors()) {
+        endwin();
+        printf("Terminal does not support colors\n");
+        return 1;
+    }
+
     WINDOW* game_window = newwin(22, 22, max_row - 22, max_col / 2 - 11);
+
+    // colors
+    init_pair(PIECE_I, COLOR_CYAN, COLOR_CYAN);
+    init_pair(PIECE_T, COLOR_MAGENTA, COLOR_MAGENTA);
+    init_pair(PIECE_O, COLOR_YELLOW, COLOR_YELLOW);
+    init_pair(PIECE_S, COLOR_GREEN, COLOR_GREEN);
+    init_pair(PIECE_Z, COLOR_RED, COLOR_RED);
+    init_pair(PIECE_J, COLOR_BLUE, COLOR_BLUE);
+    init_pair(PIECE_L, COLOR_YELLOW, COLOR_YELLOW);
 
     // main game loop
     while (1) {
@@ -112,18 +134,20 @@ int main() {
         // draw box
         box(game_window, 0, 0);
 
-        //draw current piece
-        for(int i = 0; i < 4; i ++){
-            for(int j = 0; j < 4; j++){
-                if(game->current.shape[i][j]){
+        // draw current piece
+        wattron(game_window, COLOR_PAIR(game->current.type));
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (game->current.shape[i][j]) {
                     mvwprintw(game_window, game->current.y + i, (game->current.x + j) * 2, "##");
                 }
             }
         }
-
+        wattroff(game_window, COLOR_PAIR(game->current.type));
+        
         // update game window
         wnoutrefresh(game_window);
-        
+
         // update screen
         doupdate();
         // sleep until next frame

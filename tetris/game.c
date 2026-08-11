@@ -51,6 +51,7 @@ bool to_next_piece(Game* game) {
             game->current.shape[i][j] = game->next.shape[i][j];
         }
     }
+    game->current.type = game->next.type;
     game->current.x = SPAWN_X;
     game->current.y = SPAWN_Y;
     // spawn next one
@@ -163,6 +164,7 @@ bool init(Game** out) {
         }
     }
     // set pos
+    game->current.type = game->next.type;
     game->current.x = SPAWN_X;
     game->current.y = SPAWN_Y;
     // create next
