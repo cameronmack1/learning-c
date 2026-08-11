@@ -50,7 +50,7 @@ bool to_next_piece(Game* game) {
 }
 
 bool check_collision(Game* game, Piece* piece, int dx, int dy) {
-    // checks if a piece should lock when moving down
+    // checks if a piece can move by dx and dy
     // loop thru pieces shape grid
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -80,6 +80,46 @@ bool drop_block(Game* game, Piece* piece) {
     }
     piece->y++;
     return false;
+}
+
+void transpose(Piece* piece) {
+    // swaps rows and columns
+    int piece_size = piece_sizes[piece->type];
+    bool temp;
+    for (int i = 0; i < piece_size; i++) {
+        for (int j = i + 1; j < piece_size; j++) {
+            // swap
+            temp = piece->shape[i][j];
+            piece->shape[i][j] = piece->shape[j][i];
+            piece->shape[j][i] = temp;
+        }
+    }
+}
+
+void reverse_row(Piece* piece) {
+    int piece_size = piece_sizes[piece->type];
+    bool temp;
+    // loop over every row
+    for (int i = 0; i < piece_size; i++) {
+        // loop thru half of the row
+        for (int j = 0; j < piece_size / 2; j++) {
+            temp = piece->shape[i][j];
+            piece->shape[i][j] = piece->shape[i][piece_size - 1 - j];
+            piece->shape[i][piece_size - 1 - j] = temp;
+        }
+    }
+}
+
+void rotate_cw(Piece* piece) {
+    // transpose, then reverse each row
+    transpose(piece->shape);
+    reverse_row(piece);
+}
+
+void rotate_ccw(Piece* piece) {
+    // reverse each row, then transpose
+    reverse_row(piece);
+    transpose(piece->shape);
 }
 
 int hard_fall_block(Game* game) {

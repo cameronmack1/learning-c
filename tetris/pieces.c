@@ -1,6 +1,17 @@
 #include "pieces.h"
 #include <stdbool.h>
 
+const int piece_sizes[8] = {
+    4,
+    4,
+    3,
+    4,
+    3,
+    3,
+    3,
+    3
+};
+
 const bool piece_shapes[8][4][4] = {
     //"nothing" block
     //big shape so it can be debugged easy
@@ -21,9 +32,9 @@ const bool piece_shapes[8][4][4] = {
 
     //PIECE_T
     {
-        {0, 0, 0, 0},
         {0, 1, 0, 0},
         {1, 1, 1, 0},
+        {0, 0, 0, 0},
         {0, 0, 0, 0}
     },
 
@@ -37,33 +48,33 @@ const bool piece_shapes[8][4][4] = {
 
     //PIECE_S
     {
-        {0, 0, 0, 0},
         {0, 1, 1, 0},
         {1, 1, 0, 0},
+        {0, 0, 0, 0},
         {0, 0, 0, 0}
     },
 
     //PIECE_Z
     {
-        {0, 0, 0, 0},
         {1, 1, 0, 0},
         {0, 1, 1, 0},
+        {0, 0, 0, 0},
         {0, 0, 0, 0}
     },
 
     //PIECE_J
     {
-        {0, 0, 0, 0},
         {1, 0, 0, 0},
         {1, 1, 1, 0},
+        {0, 0, 0, 0},
         {0, 0, 0, 0}
     },
 
     //PIECE_L
     {
-        {0, 0, 0, 0},
         {0, 0, 1, 0},
         {1, 1, 1, 0},
+        {0, 0, 0, 0},
         {0, 0, 0, 0}
     },
 };
