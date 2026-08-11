@@ -1,6 +1,22 @@
 #include "pieces.h"
 #include <stdbool.h>
 
+const int reg_kick_values[5][2] = {
+    {0, 0},
+    {1, 0},
+    {-1, 0},
+    {0, 1},
+    {0, -1}
+};
+
+const int line_kick_values[5][2] = {
+    {0, 0},
+    {1, 0},
+    {-1, 0},
+    {2, 1},
+    {-2, 0}
+};
+
 const int piece_sizes[8] = {
     4,
     4,

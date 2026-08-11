@@ -112,12 +112,18 @@ void reverse_row(Piece* piece) {
 
 void rotate_cw(Piece* piece) {
     // transpose, then reverse each row
+    // O piece does not rotate
+    if(piece->type == PIECE_O)
+        return;
     transpose(piece->shape);
     reverse_row(piece);
 }
 
 void rotate_ccw(Piece* piece) {
     // reverse each row, then transpose
+    // O piece does not rotate
+    if(piece->type == PIECE_O)
+        return;
     reverse_row(piece);
     transpose(piece->shape);
 }
@@ -149,11 +155,46 @@ bool init(Game** out) {
     return true;
 }
 
+bool wall_kick(Game* game, Piece* piece){
+    //move and returnt true if possible value found, return false otherwise
+    //O piece does not change when rotating
+    int kick_values[5][2];
+    //different kick values for different pieces
+    if(piece->type == PIECE_O)
+        return true;
+    if(piece->type == PIECE_I){
+        memcpy(kick_values, line_kick_values, sizeof(kick_values));
+    } else {
+        memcpy(kick_values, reg_kick_values, sizeof(kick_values));
+    }
+    //check each kick value
+    for(int i = 0; i < 5; i++){
+        if(!check_collision(game, piece, kick_values[i][0], kick_values[i][1])){
+            piece->x += kick_values[i][0];
+            piece->y += kick_values[i][1];
+            return true;
+        }
+    }
+    return false;
+}
+
 void tick(Game* game, bool input[6]) {
     // tick the game
     // check player input
     // left, right, rotate cw, rotate ccw, hard drop, soft drop
 
+    // handle rotation
+    if (input[2]) {
+        rotate_cw(&game->current);
+        if(!wall_kick(game, &game->current))
+            rotate_ccw(&game->current);
+    } else if (input[3]) {
+        rotate_ccw(&game->current);
+        if(!wall_kick(game, &game->current))
+            rotate_cw(&game->current);
+    }
+
+    // handle left-right input
     int dx = input[1] - input[0]; // left and right cancel out
     if (dx != 0) {
         // if one of left or right is being pressed
