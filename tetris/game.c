@@ -220,16 +220,19 @@ void tick(Game* game, bool input[6]) {
         game->tick_counter = 0;
         if (drop_block(game, &game->current)) {
             // if block has fallen down into a block, then lock it
-            to_next_piece(game);
+            game->game_over = to_next_piece(game);
         }
     }
 
     if (input[4] && !game->holding_hard) {
+        //reset tick counter
+        game->tick_counter = 0;
+        //prevent next block from dropping instantly
         game->holding_hard = true;
         while (!drop_block(game, &game->current)) {
             // no body
         }
-        to_next_piece(game);
+        game->game_over = to_next_piece(game);
     }
     game->holding_hard = input[4];
 

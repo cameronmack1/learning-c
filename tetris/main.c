@@ -22,8 +22,102 @@
 
 #include "game.h"
 
-int main(){
+int main() {
     srand(time(NULL));
+    // init screen
+    initscr();
+    // stop typed letters from showing on terminal
+    noecho();
+    // hide terminal cursor
+    curs_set(0);
+    // enable special keys (arrows, etc)
+    keypad(stdscr, TRUE);
+    // makes input reading non-blocking so the game runs without waiting for input
+    nodelay(stdscr, TRUE);
+
     Game* game = NULL;
-    init(&game);
+    if (!init(&game)) {
+        printf("Failed to allocate memory");
+        return 1;
+    }
+
+    const int FRAME_DELAY = 1000 / 60;
+
+    // create window
+    int max_row, max_col;
+    getmaxyx(stdscr, max_row, max_col);
+
+    start_color();
+    WINDOW* game_window = newwin(22, 22, max_row - 22, max_col / 2 - 11);
+
+    // main game loop
+    while (1) {
+        werase(game_window);
+
+        bool input[6] = { false };
+        int ch;
+        while ((ch = getch()) != ERR) {
+            switch (ch) {
+            // quit
+            case 'Q':
+            case 'q': {
+                endwin();
+                return (0);
+            }
+
+            // move left
+            case KEY_LEFT: {
+                input[0] = true;
+                break;
+            }
+
+            // move right
+            case KEY_RIGHT: {
+                input[1] = true;
+                break;
+            }
+
+            // rotate cw
+            case 'X':
+            case 'x': {
+                input[2] = true;
+                break;
+            }
+
+            // rotate ccw
+            case 'Z':
+            case 'z': {
+                input[3] = true;
+                break;
+            }
+
+            // hard drop
+            case ' ': {
+                input[4] = true;
+                break;
+            }
+
+            // soft drop
+            case KEY_DOWN: {
+                input[5] = true;
+                break;
+            }
+            }
+        }
+        // tick game
+        tick(game, input);
+
+        // draw box
+        box(game_window, 0, 0);
+
+        //draw current piece
+
+        // update game window
+        wnoutrefresh(game_window);
+
+        // update screen
+        doupdate();
+        // sleep until next frame
+        sleep_ms(FRAME_DELAY);
+    }
 }

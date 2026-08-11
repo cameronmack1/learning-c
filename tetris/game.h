@@ -29,7 +29,11 @@ typedef struct {
     int tick_counter;
     int fall_tick;
     bool game_over;
+    //vvvvv isnt useful in ncurses, but is if moved out of ncurses later
     bool holding_hard;
 } Game;
+
+void tick(Game* game, bool input[6]);
+bool init(Game** out);
 
 #endif
