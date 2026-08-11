@@ -139,12 +139,25 @@ int main() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (game->current.shape[i][j]) {
-                    mvwprintw(game_window, game->current.y + i, (game->current.x + j) * 2, "##");
+                    if ((game->current.y + i) < 0)
+                        continue;
+                    mvwprintw(game_window, game->current.y + i + 1, (game->current.x + j) * 2 + 1, "##");
                 }
             }
         }
         wattroff(game_window, COLOR_PAIR(game->current.type));
-        
+
+        // draw current map
+        for (int i = 0; i < 20; i++) {
+            for (int j = 0; j < 10; j++) {
+                if(game->board[i][j]){
+                    wattron(game_window, COLOR_PAIR(game->board[i][j]));
+                    mvwprintw(game_window, i + 1, j * 2 + 1, "##");
+                    wattroff(game_window, COLOR_PAIR(game->board[i][j]));
+                }
+            }
+        }
+
         // update game window
         wnoutrefresh(game_window);
 
