@@ -237,14 +237,16 @@ void tick(Game* game, bool input[6]) {
         }
     }
 
+    game->ghost_dy = hard_fall_block(game);
+
     if (input[4] && !game->holding_hard) {
         // reset tick counter
         game->tick_counter = 0;
         // prevent next block from dropping instantly
         game->holding_hard = true;
-        while (!drop_block(game, &game->current)) {
-            // no body
-        }
+        // drop piece
+        game->current.y += game->ghost_dy;
+        // lock
         game->game_over = to_next_piece(game);
     }
     game->holding_hard = input[4];

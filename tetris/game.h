@@ -28,6 +28,8 @@ typedef struct {
     int lines;
     int tick_counter;
     int fall_tick;
+    int ghost_dy;
+    int score;
     bool game_over;
     //vvvvv isnt useful in ncurses, but is if moved out of ncurses later
     bool holding_hard;

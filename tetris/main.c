@@ -71,6 +71,7 @@ int main() {
     init_pair(PIECE_Z, COLOR_RED, COLOR_RED);
     init_pair(PIECE_J, COLOR_BLUE, COLOR_BLUE);
     init_pair(PIECE_L, COLOR_YELLOW, COLOR_YELLOW);
+    init_pair(8, COLOR_WHITE, COLOR_WHITE);
 
     // main game loop
     while (1) {
@@ -134,18 +135,24 @@ int main() {
         // draw box
         box(game_window, 0, 0);
 
-        // draw current piece
-        wattron(game_window, COLOR_PAIR(game->current.type));
+        // draw current piece and ghost
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (game->current.shape[i][j]) {
+                    //draw ghost
+                    wattron(game_window, COLOR_PAIR(8));
+                    mvwprintw(game_window, game->current.y + i + 1 + game->ghost_dy, (game->current.x + j) * 2 + 1, "##");
+                    wattroff(game_window, COLOR_PAIR(8));
+
                     if ((game->current.y + i) < 0)
                         continue;
+                    //draw piece
+                    wattron(game_window, COLOR_PAIR(game->current.type));
                     mvwprintw(game_window, game->current.y + i + 1, (game->current.x + j) * 2 + 1, "##");
+                    wattroff(game_window, COLOR_PAIR(game->current.type));
                 }
             }
         }
-        wattroff(game_window, COLOR_PAIR(game->current.type));
 
         // draw current map
         for (int i = 0; i < 20; i++) {
