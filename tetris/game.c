@@ -291,6 +291,7 @@ void tick(Game* game, bool input[6]) {
         break;
     }
     }
+    game->lines += num_lines;
 
     game->tick_counter++;
 }

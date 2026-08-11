@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "pieces.h"
 #include "game.h"
 
 int main() {
@@ -62,6 +63,8 @@ int main() {
     }
 
     WINDOW* game_window = newwin(22, 22, max_row - 22, max_col / 2 - 11);
+    WINDOW* score_window = newwin(7, 10, max_row - 22, max_col / 2 - 23);
+    WINDOW* next_window = newwin(7, 10, max_row - 15, max_col / 2 - 23);
 
     // colors
     init_pair(PIECE_I, COLOR_CYAN, COLOR_CYAN);
@@ -139,14 +142,14 @@ int main() {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (game->current.shape[i][j]) {
-                    //draw ghost
+                    // draw ghost
                     wattron(game_window, COLOR_PAIR(8));
                     mvwprintw(game_window, game->current.y + i + 1 + game->ghost_dy, (game->current.x + j) * 2 + 1, "##");
                     wattroff(game_window, COLOR_PAIR(8));
 
                     if ((game->current.y + i) < 0)
                         continue;
-                    //draw piece
+                    // draw piece
                     wattron(game_window, COLOR_PAIR(game->current.type));
                     mvwprintw(game_window, game->current.y + i + 1, (game->current.x + j) * 2 + 1, "##");
                     wattroff(game_window, COLOR_PAIR(game->current.type));
@@ -157,7 +160,7 @@ int main() {
         // draw current map
         for (int i = 0; i < 20; i++) {
             for (int j = 0; j < 10; j++) {
-                if(game->board[i][j]){
+                if (game->board[i][j]) {
                     wattron(game_window, COLOR_PAIR(game->board[i][j]));
                     mvwprintw(game_window, i + 1, j * 2 + 1, "##");
                     wattroff(game_window, COLOR_PAIR(game->board[i][j]));
@@ -167,6 +170,41 @@ int main() {
 
         // update game window
         wnoutrefresh(game_window);
+
+        box(score_window, 0, 0);
+
+        // print score
+        int len = snprintf(NULL, 0, "%d", game->score);
+        mvwprintw(score_window, 1, 2, "SCORE");
+        mvwprintw(score_window, 2, (10 - len) / 2, "%d", game->score);
+
+        // print lines
+        len = snprintf(NULL, 0, "%d", game->lines);
+        mvwprintw(score_window, 4, 2, "LINES");
+        mvwprintw(score_window, 5, (10 - len) / 2, "%d", game->lines);
+
+        // update score window
+        wnoutrefresh(score_window);
+
+        // erase window
+        werase(next_window);
+
+        box(next_window, 0, 0);
+        mvwprintw(next_window, 1, 3, "NEXT");
+        wattron(next_window, COLOR_PAIR(game->next.type));
+        // draw next piece
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (game->next.shape[i][j] == 0)
+                    continue;
+                //print 1 higher if it is an O piece, print 1 space to the left if it is an O or an I piece
+                mvwprintw(next_window, 3 + i - (game->next.type == PIECE_O), 1 + (2 * j) + 4 - piece_sizes[game->next.type], "##");
+            }
+        }
+        wattroff(next_window, COLOR_PAIR(game->next.type));
+
+        // update score window
+        wnoutrefresh(next_window);
 
         // update screen
         doupdate();
