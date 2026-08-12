@@ -58,7 +58,7 @@ bool to_next_piece(Game* game) {
                 int ny = y_pos + i;
                 int nx = x_pos + j;
                 // game over if a piece locks above top of map
-                if (ny < 0)
+                if (ny <= 0)
                     return true;
 
                 if (nx < 0 || nx >= MAX_X || ny >= MAX_Y) // shouldnt happen

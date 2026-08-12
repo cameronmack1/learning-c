@@ -133,7 +133,9 @@ int main() {
             }
         }
         // tick game
-        tick(game, input);
+        if(!game->game_over){
+            tick(game, input);
+        }
 
         // draw box
         box(game_window, 0, 0);
