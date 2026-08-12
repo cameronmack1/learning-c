@@ -11,10 +11,33 @@
 #define MAX_X 10
 #define MAX_Y 20
 
+void reset_bag(Game* game) {
+    // reset
+    game->piece_bag.cur_index = 0;
+    for (int i = 0; i < 7; i++) {
+        game->piece_bag.bag[i] = i + 1;
+    }
+
+    // fisher-yates shuffle
+    int temp;
+    int pos;
+    for (int i = 6; i > 0; i--) {
+        // generate random position to swap with
+        pos = rand() % (i + 1);
+
+        // swap
+        temp = game->piece_bag.bag[i];
+        game->piece_bag.bag[i] = game->piece_bag.bag[pos];
+        game->piece_bag.bag[pos] = temp;
+    }
+}
+
 void spawn_next_piece(Game* game) {
     // spawn a new piece into game->next
     // generate random piece
-    game->next.type = rand() % 7 + 1;
+    game->next.type = game->piece_bag.bag[game->piece_bag.cur_index++];
+    if (game->piece_bag.cur_index >= 7)
+        reset_bag(game);
     // copy from pieces to next
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -155,6 +178,8 @@ bool init(Game** out) {
     if (game == NULL)
         return false;
 
+    // initialize piece bag
+    reset_bag(game);
     // create new block
     spawn_next_piece(game);
     // move next block to current

@@ -21,9 +21,15 @@ typedef struct {
 } Piece;
 
 typedef struct {
+    PieceType bag[7];
+    int cur_index;
+} PieceBag;
+
+typedef struct {
     Piece current;
     Piece next;
     PieceType board[20][10];
+    PieceBag piece_bag;
     int score;
     int lines;
     int tick_counter;
