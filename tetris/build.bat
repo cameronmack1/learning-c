@@ -44,11 +44,11 @@ exit /b 1
 
 :found
 
-rem build snake.c using gcc
-gcc snake.c -g -Wall -Wextra -I"%FOUND_INCLUDE%" -L"%FOUND_LIB%" -lpdcurses -o snake.exe
+rem build using gcc
+gcc main.c game.c pieces.c -g -Wall -Wextra -I"%FOUND_INCLUDE%" -L"%FOUND_LIB%" -lpdcurses -o tetris.exe
 
 if %errorlevel% equ 1 (
     echo compilation failed
 ) else (
-    echo snake.exe compiled successfully
+    echo tetris.exe compiled successfully
 )
