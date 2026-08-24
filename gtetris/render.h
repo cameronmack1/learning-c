@@ -3,6 +3,6 @@
 
 #include "game.h"
 
-void render_game(const Game *game);
+void render_game(const Game *game, size_t size);
 
 #endif

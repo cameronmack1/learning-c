@@ -28,7 +28,7 @@ int main() {
 
     // loop until window closed
     while (!WindowShouldClose()) {
-        // get all inputs
+        // handle inputs
         inputs[0] = IsKeyPressed(KEY_LEFT);
         inputs[1] = IsKeyPressed(KEY_RIGHT);
         inputs[2] = IsKeyPressed(KEY_X);
@@ -36,15 +36,17 @@ int main() {
         inputs[4] = IsKeyPressed(KEY_SPACE);
         inputs[5] = IsKeyDown(KEY_DOWN);
 
-        if(!game->game_over){
+        //update game state
+        if (!game->game_over) {
             tick(game, inputs);
         }
 
+        // render
         BeginDrawing();
 
+        // clear bg and render
         ClearBackground(BLACK);
-
-        render_game(game);
+        render_game(game, PIXEL_SIZE);
 
         EndDrawing();
     }
