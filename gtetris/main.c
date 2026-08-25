@@ -25,11 +25,7 @@ int main() {
     int max_width = GetMonitorWidth(monitor);
     int max_height = GetMonitorHeight(monitor);
 
-    int pixel_size = max_height / 25;
-
-    int game_pos_x = max_width / 2 - (pixel_size * 5);
-    int game_pos_y = max_height / 2 - (pixel_size * 10);
-
+    // rescale and move window
     SetWindowSize(max_width, max_height);
     SetWindowPosition(0, 0);
 
@@ -62,7 +58,7 @@ int main() {
 
         // clear bg and render
         ClearBackground(BLACK);
-        render_game(game, pixel_size, game_pos_x, game_pos_y);
+        render_game(game);
 
         EndDrawing();
     }

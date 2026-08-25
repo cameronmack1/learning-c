@@ -29,11 +29,26 @@ Color get_piece_color(PieceType type) {
     return WHITE;
 }
 
-void render_game(const Game* game, size_t size, int start_x, int start_y ) {
+void render_background(int pixel_size, int start_x, int start_y) {
+    int outer_width = pixel_size / 3;
+    Rectangle rec = {
+        start_x - outer_width,
+        start_y - outer_width,
+        10 * pixel_size + 2 * outer_width,
+        20 * pixel_size + 2 * outer_width
+    };
+    DrawRectangleRounded(rec, 0.05f, 4, GRAY);
+}
+
+void render_score(int pixel_size, int start_x, int start_y){
+
+}
+
+void render_board(const Game* game, int size, int start_x, int start_y) {
     // render board
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 20; j++) {
-            DrawRectangle(i * size * start_x, j * size + start_y, size, size, get_piece_color(game->board[j][i]));
+            DrawRectangle(i * size + start_x, j * size + start_y, size, size, get_piece_color(game->board[j][i]));
         }
     }
 
@@ -49,11 +64,28 @@ void render_game(const Game* game, size_t size, int start_x, int start_y ) {
                 DrawRectangle(start_x + cur_x + size * i, start_y + cur_y + size * (j + game->ghost_dy), size, size, WHITE);
 
                 // skip drawing if above roof
-                if ((game->current.y + i) < 0)
-                    continue;
-
-                DrawRectangle(start_x + cur_x + size * i, start_y + cur_y + size * j, size, size, get_piece_color(game->current.type));
+                if ((game->current.y + j) >= 0)
+                    DrawRectangle(start_x + cur_x + size * i, start_y + cur_y + size * j, size, size, get_piece_color(game->current.type));
             }
         }
     }
+}
+
+void render_game(const Game* game) {
+    int screen_width = GetScreenWidth();
+    int screen_height = GetScreenHeight();
+
+    int pixel_size = screen_height / 25;
+
+    int board_start_x = screen_width / 2 - (pixel_size * 5);
+    int board_start_y = screen_height / 2 - (pixel_size * 10);
+
+    render_background(pixel_size, board_start_x, board_start_y);
+
+    int score_start_x = board_start_x + pixel_size * 10;
+    int score_start_y = board_start_y + pixel_size * 2;
+
+    render_score(pixel_size, score_start_x, score_start_y);
+
+    render_board(game, pixel_size, board_start_x, board_start_y);
 }
