@@ -31,6 +31,8 @@ Color get_piece_color(PieceType type) {
 
 void render_background(int pixel_size, int start_x, int start_y) {
     int outer_width = pixel_size / 3;
+
+    // draw rectangle
     Rectangle rec = {
         start_x - outer_width,
         start_y - outer_width,
@@ -40,8 +42,29 @@ void render_background(int pixel_size, int start_x, int start_y) {
     DrawRectangleRounded(rec, 0.05f, 4, GRAY);
 }
 
-void render_score(int pixel_size, int start_x, int start_y){
+void render_score(int pixel_size, int start_x, int start_y, int score, int lines) {
+    int outer_width = pixel_size / 3;
 
+    // draw outline
+    Rectangle rec = {
+        start_x,
+        start_y - outer_width,
+        7 * pixel_size + 2 * outer_width,
+        5 * pixel_size + 2 * outer_width
+    };
+    DrawRectangleRounded(rec, 0.05f, 4, GRAY);
+
+    // clear inside
+    DrawRectangle(start_x + outer_width, start_y, 7 * pixel_size, 5 * pixel_size, BLACK);
+
+    // draw text
+    DrawText(TextFormat("Score: %d", score), start_x + 2 * outer_width, start_y + outer_width, pixel_size, WHITE);
+    
+    DrawText(TextFormat("Lines: %d", lines), start_x + 2 * outer_width, start_y + outer_width * 9, pixel_size, WHITE);
+}
+
+void render_next(){
+    
 }
 
 void render_board(const Game* game, int size, int start_x, int start_y) {
@@ -85,7 +108,7 @@ void render_game(const Game* game) {
     int score_start_x = board_start_x + pixel_size * 10;
     int score_start_y = board_start_y + pixel_size * 2;
 
-    render_score(pixel_size, score_start_x, score_start_y);
+    render_score(pixel_size, score_start_x, score_start_y, game->score, game->lines);
 
     render_board(game, pixel_size, board_start_x, board_start_y);
 }
