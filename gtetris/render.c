@@ -29,11 +29,11 @@ Color get_piece_color(PieceType type) {
     return WHITE;
 }
 
-void render_game(const Game* game, size_t size) {
+void render_game(const Game* game, size_t size, int start_x, int start_y ) {
     // render board
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 20; j++) {
-            DrawRectangle(i * size, j * size, size, size, get_piece_color(game->board[j][i]));
+            DrawRectangle(i * size * start_x, j * size + start_y, size, size, get_piece_color(game->board[j][i]));
         }
     }
 
@@ -46,13 +46,13 @@ void render_game(const Game* game, size_t size) {
             // if part of the shape
             if (game->current.shape[j][i]) {
                 // draw ghost
-                DrawRectangle(cur_x + size * i, cur_y + size * (j + game->ghost_dy), size, size, WHITE);
+                DrawRectangle(start_x + cur_x + size * i, start_y + cur_y + size * (j + game->ghost_dy), size, size, WHITE);
 
                 // skip drawing if above roof
                 if ((game->current.y + i) < 0)
                     continue;
 
-                DrawRectangle(cur_x + size * i, cur_y + size * j, size, size, get_piece_color(game->current.type));
+                DrawRectangle(start_x + cur_x + size * i, start_y + cur_y + size * j, size, size, get_piece_color(game->current.type));
             }
         }
     }
