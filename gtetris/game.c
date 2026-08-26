@@ -273,6 +273,8 @@ void tick(Game* game, bool input[6]) {
         game->current.y += game->ghost_dy;
         // lock
         game->game_over = to_next_piece(game);
+        // update ghost dy again to prevent a white flash for 1 frame
+        game->ghost_dy = hard_fall_block(game);
     }
     game->holding_hard = input[4];
 
