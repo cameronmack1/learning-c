@@ -59,19 +59,27 @@ void render_score(int pixel_size, int start_x, int start_y, int score, int lines
 
     // draw text
     DrawText(TextFormat("Score: %d", score), start_x + 2 * outer_width, start_y + outer_width, pixel_size, WHITE);
-    
+
     DrawText(TextFormat("Lines: %d", lines), start_x + 2 * outer_width, start_y + outer_width * 9, pixel_size, WHITE);
 }
 
-void render_next(){
-    
+void render_next() {
 }
 
 void render_board(const Game* game, int size, int start_x, int start_y) {
     // render board
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 20; j++) {
-            DrawRectangle(i * size + start_x, j * size + start_y, size, size, get_piece_color(game->board[j][i]));
+            Rectangle rec = {
+                i * size + start_x,
+                j * size + start_y,
+                size,
+                size
+            };
+            DrawRectangleRec(rec, get_piece_color(game->board[j][i]));
+            if (game->board[j][i]) {
+                DrawRectangleLinesEx(rec, 2, Fade(WHITE, 0.5f));
+            }
         }
     }
 
@@ -87,8 +95,18 @@ void render_board(const Game* game, int size, int start_x, int start_y) {
                 DrawRectangle(start_x + cur_x + size * i, start_y + cur_y + size * (j + game->ghost_dy), size, size, WHITE);
 
                 // skip drawing if above roof
-                if ((game->current.y + j) >= 0)
-                    DrawRectangle(start_x + cur_x + size * i, start_y + cur_y + size * j, size, size, get_piece_color(game->current.type));
+                if ((game->current.y + j) >= 0) {
+                    // create rectangle
+                    Rectangle rec = {
+                        start_x + cur_x + size * i,
+                        start_y + cur_y + size * j,
+                        size,
+                        size
+                    };
+
+                    DrawRectangleRec(rec, get_piece_color(game->current.type));
+                    DrawRectangleLinesEx(rec, 2, Fade(WHITE, 0.5f));
+                }
             }
         }
     }
