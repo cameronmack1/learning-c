@@ -9,7 +9,7 @@
 #include "pieces.h"
 #include "render.h"
 
-int max_width =-1;
+int max_width = -1;
 int max_height = -1;
 
 int main() {
@@ -38,11 +38,46 @@ int main() {
     // 0left 1right 2cw 3ccw 4hard 5soft
     bool inputs[6] = { false };
 
+    // das settings
+    int das_delay = 16;
+    int das_repeat_delay = 6;
+
+    int das_left_timer = 0;
+    int das_right_timer = 0;
+
     // loop until window closed
     while (!WindowShouldClose()) {
+        // left/right DAS system
+        bool left = IsKeyDown(KEY_LEFT);
+        bool right = IsKeyDown(KEY_RIGHT);
+
+        inputs[0] = false;
+        if (left) {
+            if (das_left_timer == 0) {
+                inputs[0] = true;
+            } else if (das_left_timer >= das_delay) {
+                inputs[0] = true;
+                das_left_timer -= das_repeat_delay;
+            }
+            das_left_timer++;
+        } else {
+            das_left_timer = 0;
+        }
+
+        inputs[1] = false;
+        if (right) {
+            if (das_right_timer == 0) {
+                inputs[1] = true;
+            } else if (das_right_timer >= das_delay) {
+                inputs[1] = true;
+                das_right_timer -= das_repeat_delay;
+            }
+            das_right_timer++;
+        } else {
+            das_right_timer = 0;
+        }
+
         // handle inputs
-        inputs[0] = IsKeyPressed(KEY_LEFT);
-        inputs[1] = IsKeyPressed(KEY_RIGHT);
         inputs[2] = IsKeyPressed(KEY_X);
         inputs[3] = IsKeyPressed(KEY_Z);
         inputs[4] = IsKeyPressed(KEY_SPACE);
