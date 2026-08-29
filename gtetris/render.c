@@ -63,7 +63,43 @@ void render_score(int pixel_size, int start_x, int start_y, int score, int lines
     DrawText(TextFormat("Lines: %d", lines), start_x + 2 * outer_width, start_y + outer_width * 9, pixel_size, WHITE);
 }
 
-void render_next() {
+void render_next(int pixel_size, int start_x, int start_y, const Piece* piece) {
+    int outer_width = pixel_size / 3;
+
+    // draw outline
+    Rectangle rec = {
+        start_x,
+        start_y + 5 * pixel_size,
+        7 * pixel_size + 2 * outer_width,
+        7 * pixel_size + 2 * outer_width
+    };
+    DrawRectangleRounded(rec, 0.05f, 4, GRAY);
+
+    // clear inside
+    DrawRectangle(start_x + outer_width, start_y + 5 * pixel_size + outer_width, 7 * pixel_size, 7 * pixel_size, BLACK);
+
+    // text
+    DrawText(TextFormat("Next:"), start_x + 2 * pixel_size, start_y + 5 * pixel_size + outer_width, pixel_size, WHITE);
+
+    int block_start_x = start_x + 2 * pixel_size;
+    int block_start_y = start_y + 7 * pixel_size;
+
+    // loop over blocks shape
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (!piece->shape[j][i])
+                continue;
+            Rectangle rec = {
+                block_start_x + pixel_size * i,
+                block_start_y + pixel_size * j,
+                pixel_size,
+                pixel_size
+            };
+
+            DrawRectangleRec(rec, get_piece_color(piece->type));
+            DrawRectangleLinesEx(rec, 2, Fade(WHITE, 0.5f));
+        }
+    }
 }
 
 void render_board(const Game* game, int size, int start_x, int start_y) {
@@ -127,6 +163,8 @@ void render_game(const Game* game) {
     int score_start_y = board_start_y + pixel_size * 2;
 
     render_score(pixel_size, score_start_x, score_start_y, game->score, game->lines);
+
+    render_next(pixel_size, score_start_x, score_start_y, &game->next);
 
     render_board(game, pixel_size, board_start_x, board_start_y);
 }
