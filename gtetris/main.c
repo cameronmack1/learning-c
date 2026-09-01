@@ -96,6 +96,13 @@ int main() {
         render_game(game);
 
         EndDrawing();
+
+        if (game->game_over && IsKeyPressed(KEY_ENTER)) {
+            if (!init(&game)) {
+                printf("Failed to allocate memory");
+                return 1;
+            }
+        }
     }
     CloseWindow();
 }

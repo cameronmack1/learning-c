@@ -120,6 +120,8 @@ void render_gameover(int score, int start_x, int start_y, int size) {
     DrawText(TextFormat("Game Over"), start_x + size, start_y + size, size, RED);
 
     DrawText(TextFormat("Score: %d", score), start_x + size, start_y + 3 * size, size, RED);
+
+    DrawText(TextFormat("Press ENTER to reset"), start_x + 2 * size, start_y + 5 * size, size / 2, GRAY);
 }
 
 void render_board(const Game* game, int size, int start_x, int start_y) {
