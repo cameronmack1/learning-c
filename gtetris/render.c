@@ -102,6 +102,26 @@ void render_next(int pixel_size, int start_x, int start_y, const Piece* piece) {
     }
 }
 
+void render_gameover(int score, int start_x, int start_y, int size) {
+    // create rec
+    Rectangle rec = {
+        start_x,
+        start_y,
+        size * 10,
+        size * 6
+    };
+
+    // draw rec
+    DrawRectangleRec(rec, BLACK);
+
+    DrawRectangleRoundedLinesEx(rec, 0.1, 10, size / 3, RED);
+
+    // text
+    DrawText(TextFormat("Game Over"), start_x + size, start_y + size, size, RED);
+
+    DrawText(TextFormat("Score: %d", score), start_x + size, start_y + 3 * size, size, RED);
+}
+
 void render_board(const Game* game, int size, int start_x, int start_y) {
     // render board
     for (int i = 0; i < 10; i++) {
@@ -167,4 +187,11 @@ void render_game(const Game* game) {
     render_next(pixel_size, score_start_x, score_start_y, &game->next);
 
     render_board(game, pixel_size, board_start_x, board_start_y);
+
+    if (game->game_over) {
+        int go_start_x = screen_width / 2 - 5 * pixel_size;
+        int go_start_y = screen_height / 2 - 3 * pixel_size;
+
+        render_gameover(game->score, go_start_x, go_start_y, pixel_size);
+    }
 }
