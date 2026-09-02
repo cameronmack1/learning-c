@@ -12,6 +12,42 @@
 int max_width = -1;
 int max_height = -1;
 
+int get_high_score() {
+    // create and open file stream
+    FILE* fptr;
+    fptr = fopen("highscore.txt", "r");
+
+    // if file does not exist, or it was unable to be opened for whatever reason, return 0
+    if (fptr == NULL)
+        return 0;
+
+    int number;
+
+    // attempt to read a number from it, and return it if successful
+    if (fscanf(fptr, "%d", &number) == 1)
+        return number;
+
+    return 0;
+}
+
+bool set_high_score(int score) {
+    printf("set high score called");
+    // create and open file stream
+    FILE* fptr;
+    fptr = fopen("highscore.txt", "w");
+
+    // if file was unable to be opened for whatever reason, return false
+    if (fptr == NULL){
+        printf("Failed to save high score");
+        return false;
+    }
+
+    // put the new score in the highscore.txt file
+    fprintf(fptr, "%d", score);
+
+    return true;
+}
+
 int main() {
     srand(time(NULL));
     // create window
@@ -44,6 +80,11 @@ int main() {
 
     int das_left_timer = 0;
     int das_right_timer = 0;
+
+    // high score
+    int high_score = 0;
+    // prevent loading high score from file multiple times
+    bool game_over_loaded = false;
 
     // loop until window closed
     while (!WindowShouldClose()) {
@@ -86,6 +127,17 @@ int main() {
         // update game state
         if (!game->game_over) {
             tick(game, inputs);
+        } else if (!game_over_loaded) {
+            game_over_loaded = true;
+
+            // get high score
+            high_score = get_high_score();
+            printf("gameover loaded thing");
+            //set high score if current score is > high score
+            if (game->score > high_score) {
+                printf("test");
+                set_high_score(game->score);
+            }
         }
 
         // render
@@ -93,7 +145,7 @@ int main() {
 
         // clear bg and render
         ClearBackground(BLACK);
-        render_game(game);
+        render_game(game, high_score);
 
         EndDrawing();
 
@@ -102,6 +154,7 @@ int main() {
                 printf("Failed to allocate memory");
                 return 1;
             }
+            game_over_loaded = false;
         }
     }
     CloseWindow();

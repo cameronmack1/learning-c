@@ -102,7 +102,7 @@ void render_next(int pixel_size, int start_x, int start_y, const Piece* piece) {
     }
 }
 
-void render_gameover(int score, int start_x, int start_y, int size) {
+void render_gameover(int score, int high_score, int start_x, int start_y, int size) {
     // create rec
     Rectangle rec = {
         start_x,
@@ -170,7 +170,7 @@ void render_board(const Game* game, int size, int start_x, int start_y) {
     }
 }
 
-void render_game(const Game* game) {
+void render_game(const Game* game, int high_score) {
     int screen_width = GetScreenWidth();
     int screen_height = GetScreenHeight();
 
@@ -194,6 +194,6 @@ void render_game(const Game* game) {
         int go_start_x = screen_width / 2 - 5 * pixel_size;
         int go_start_y = screen_height / 2 - 3 * pixel_size;
 
-        render_gameover(game->score, go_start_x, go_start_y, pixel_size);
+        render_gameover(game->score, high_score, go_start_x, go_start_y, pixel_size);
     }
 }
