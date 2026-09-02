@@ -24,9 +24,12 @@ int get_high_score() {
     int number;
 
     // attempt to read a number from it, and return it if successful
-    if (fscanf(fptr, "%d", &number) == 1)
+    if (fscanf(fptr, "%d", &number) == 1) {
+        fclose(fptr);
         return number;
+    }
 
+    fclose(fptr);
     return 0;
 }
 
@@ -36,7 +39,7 @@ bool set_high_score(int score) {
     fptr = fopen("highscore.txt", "w");
 
     // if file was unable to be opened for whatever reason, return false
-    if (fptr == NULL){
+    if (fptr == NULL) {
         printf("Failed to save high score");
         return false;
     }
@@ -132,7 +135,7 @@ int main() {
             // get high score
             high_score = get_high_score();
 
-            //set high score if current score is > high score
+            // set high score if current score is > high score
             if (game->score > high_score) {
                 set_high_score(game->score);
             }
