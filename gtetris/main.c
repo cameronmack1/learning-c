@@ -31,7 +31,6 @@ int get_high_score() {
 }
 
 bool set_high_score(int score) {
-    printf("set high score called");
     // create and open file stream
     FILE* fptr;
     fptr = fopen("highscore.txt", "w");
@@ -132,10 +131,9 @@ int main() {
 
             // get high score
             high_score = get_high_score();
-            printf("gameover loaded thing");
+
             //set high score if current score is > high score
             if (game->score > high_score) {
-                printf("test");
                 set_high_score(game->score);
             }
         }
