@@ -148,6 +148,8 @@ int main() {
         EndDrawing();
 
         if (game->game_over && IsKeyPressed(KEY_ENTER)) {
+            // we dont want a memory leak do we
+            free(game);
             if (!init(&game)) {
                 printf("Failed to allocate memory");
                 return 1;
