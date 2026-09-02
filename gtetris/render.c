@@ -117,11 +117,11 @@ void render_gameover(int score, int high_score, int start_x, int start_y, int si
     DrawRectangleRoundedLinesEx(rec, 0.1, 10, size / 3, RED);
 
     // text
-    DrawText(TextFormat("Game Over"), start_x + size, start_y + size, size, RED);
+    DrawText(TextFormat("Game Over"), start_x + size / 2, start_y + size, size, RED);
 
-    DrawText(TextFormat("Score: %d", score), start_x + size, start_y + 7 * (size / 3), size, RED);
+    DrawText(TextFormat("Score: %d", score), start_x + size / 2, start_y + 7 * (size / 3), size, RED);
     
-    DrawText(TextFormat("High Score: %d", high_score), start_x + size, start_y + 11 * (size / 3), size, RED);
+    DrawText(TextFormat("High Score: %d", high_score), start_x + size / 2, start_y + 11 * (size / 3), size, RED);
 
     DrawText(TextFormat("Press ENTER to reset"), start_x + 2 * size, start_y + 5 * size, size / 2, GRAY);
 }
