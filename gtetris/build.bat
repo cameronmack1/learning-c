@@ -9,6 +9,14 @@ if %errorlevel% equ 1 (
     echo Please install MSYS2 or MinGW
     exit /b 1
 )
+
+rem check project path first
+if exist "%~dp0include\raylib.h" (
+    set "FOUND_INCLUDE=%~dp0include"
+    set "FOUND_LIB=%~dp0lib"
+    goto :found
+)
+
 rem check msys64 ucrt64 path
 if exist "C:\msys64\ucrt64\include\raylib.h" (
     set "FOUND_INCLUDE=C:\msys64\ucrt64\include"
@@ -30,13 +38,6 @@ if exist "C:\MinGW\include\raylib.h" (
     goto :found
 )
 
-rem check project path
-if exist "%~dp0include\raylib.h" (
-    set "FOUND_INCLUDE=%~dp0include"
-    set "FOUND_LIB=%~dp0lib"
-    goto :found
-)
-
 rem exit if raylib not found
 echo ERROR: raylib was not found in any normal locations
 echo Please install raylib
@@ -45,7 +46,7 @@ exit /b 1
 :found
 
 rem build using gcc
-gcc main.c game.c pieces.c render.c -g -Wall -Wextra -I"%FOUND_INCLUDE%" -L"%FOUND_LIB%" -lraylib -lopengl32 -lgdi32 -o tetris.exe
+gcc main.c game.c pieces.c render.c -g -Wall -Wextra -I"%FOUND_INCLUDE%" -L"%FOUND_LIB%" -static -lraylib -lopengl32 -lgdi32 -lwinmm -o tetris.exe
 
 if %errorlevel% equ 1 (
     echo compilation failed
