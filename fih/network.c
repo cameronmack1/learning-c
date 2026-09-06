@@ -104,12 +104,12 @@ void calculate_layer(Layer* layer, const float* inputs, float (*activation)(floa
 }
 
 // tanh activaiton function
-float tanh(float value) {
+float tanh_activation(float value) {
     return tanh(value);
 }
 
 // ReLu activation functino
-float relu(float value) {
+float relu_activation(float value) {
     return value > 0 ? value : 0;
 }
 
@@ -156,7 +156,7 @@ void forward_propagate(Network* net, const float* inputs) {
         const float* cur_inputs = (i == 0) ? inputs : net->layers[i].output;
 
         // use ReLu for hidden layers, tanh for output
-        calculate_layer(&net->layers[i], cur_inputs, (i == net->num_layers - 1) ? tanh : relu);
+        calculate_layer(&net->layers[i], cur_inputs, (i == net->num_layers - 1) ? tanh_activation : relu_activation);
     }
 }
 
