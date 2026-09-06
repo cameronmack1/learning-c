@@ -135,13 +135,16 @@ float box_muller_transform() {
         w = u * u + v * v;
 
         // loop until valid numbers found
-    } while (w == 0.0f || w > 1.0f || w < -1.0f);
+    } while (w == 0.0f || w > 1.0f);
 
     w = sqrtf((-2.0f * logf(w)) / w);
 
     // calculate final numbers
     float z1 = u * w;
     z2 = v * w;
+
+    // show that z2 is saved for the next call
+    z2_saved = true;
 
     return z1;
 }
@@ -158,10 +161,15 @@ void forward_propagate(Network* net, const float* inputs) {
 }
 
 void mutate(Network* net, float mutation_rate, float mutation_strength) {
-    for (int i = 0; i < net->layers; i++) {
+    for (int i = 0; i < net->num_layers; i++) {
         for (int j = 0; j < net->layers[i].num_weights; j++) {
-            if (rand() / RAND_MAX < mutation_rate) {
-                net->layers[i].weights[j] += 0;
+            if ((float)rand() / RAND_MAX < mutation_rate) {
+                net->layers[i].weights[j] += box_muller_transform() * mutation_strength;
+            }
+        }
+        for(int j = 0; j < net->layers[i].num_neurons; j++){
+            if ((float)rand() / RAND_MAX < mutation_rate) {
+                net->layers[i].bias[j] += box_muller_transform() * mutation_strength;
             }
         }
     }
