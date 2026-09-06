@@ -10,6 +10,7 @@ bool create_add_layer(Network* network, int in_size, int layer_size, int num_lay
     Layer* layer = &network->layers[num_layer];
     // create values
     layer->num_neurons = layer_size;
+    layer->num_inputs = in_size;
     layer->num_weights = in_size * layer_size;
 
     layer->bias = calloc(layer_size, sizeof(float));
@@ -49,7 +50,7 @@ bool init(Network** out, size_t num_layers, ...) {
     va_start(args, num_layers);
 
     int inputs = va_arg(args, int);
-    if(!create_add_layer(network, inputs, va_arg(args, int), 0)){
+    if (!create_add_layer(network, inputs, va_arg(args, int), 0)) {
         free(network->layers[0].bias);
         free(network->layers[0].weights);
         free(network->layers[0].output);
@@ -79,4 +80,31 @@ bool init(Network** out, size_t num_layers, ...) {
 
     *out = network;
     return true;
+}
+
+void calculate_layer(Layer* layer, const float* inputs, float (*activation)(float)) {
+    // loop over every neuron
+    for (int i = 0; i < layer->num_neurons; i++) {
+        // unflatten array
+        int weights_index = i * layer->num_inputs;
+
+        // add bias
+        float sum = 0;
+        sum += layer->bias[i];
+
+        // loop over every input
+        for (int j = 0; j < layer->num_inputs; j++) {
+            // output = b + w1*i1 + w2i2....
+            sum += layer->weights[weights_index + j] * inputs[j];
+        }
+        // activation function
+        layer->output[i] = activation(sum);
+    }
+}
+
+void forward_propagate(Network* net, const float* inputs) {
+    for (int i = 0; i < net->num_layers; i++) {
+        // sets the inputs to be the last layers outputs, or the passed in inputs depending on what layer it is on
+        const float* cur_inputs = (i == 0) ? inputs : net->layers[i].output;
+    }
 }

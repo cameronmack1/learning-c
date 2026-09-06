@@ -5,6 +5,7 @@
 typedef struct {
     int num_weights;
     int num_neurons;
+    int num_inputs;
 
     float *weights;
     float *bias;
