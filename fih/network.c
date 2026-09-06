@@ -160,14 +160,20 @@ void forward_propagate(Network* net, const float* inputs) {
     }
 }
 
+// mutate network
 void mutate(Network* net, float mutation_rate, float mutation_strength) {
+    // loop thru every layer
     for (int i = 0; i < net->num_layers; i++) {
+        // loop thru every weight
         for (int j = 0; j < net->layers[i].num_weights; j++) {
+            // random chance to mutate
             if ((float)rand() / RAND_MAX < mutation_rate) {
+                // use box muller transform for a random gaussian distributed number, multiply by mutation strength
                 net->layers[i].weights[j] += box_muller_transform() * mutation_strength;
             }
         }
-        for(int j = 0; j < net->layers[i].num_neurons; j++){
+        // do it again for all the biases
+        for (int j = 0; j < net->layers[i].num_neurons; j++) {
             if ((float)rand() / RAND_MAX < mutation_rate) {
                 net->layers[i].bias[j] += box_muller_transform() * mutation_strength;
             }

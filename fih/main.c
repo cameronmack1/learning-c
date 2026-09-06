@@ -10,7 +10,7 @@
 int max_width = -1;
 int max_height = -1;
 
-int main() {
+int main(int argc, char* argv[]) {
     // init random seed
     srand(time(NULL));
     // create window
