@@ -1,9 +1,9 @@
+#include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 #include "network.h"
 
@@ -104,13 +104,46 @@ void calculate_layer(Layer* layer, const float* inputs, float (*activation)(floa
 }
 
 // tanh activaiton function
-float tanh(float value){
+float tanh(float value) {
     return tanh(value);
 }
 
 // ReLu activation functino
 float relu(float value) {
     return value > 0 ? value : 0;
+}
+
+// box muller transform, polar form
+float box_muller_transform() {
+    static float z2;
+    static bool z2_saved = false;
+
+    if (z2_saved) {
+        z2_saved = false;
+        return z2;
+    }
+
+    float u, v, w;
+
+    do {
+        // set u and v to 2 random numbers between -1 and 0
+        u = ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+        v = ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+
+        // w = u^2 + v^2
+        // if w = 0 or w >= 1 or w <= -1, then pick new numbers
+        w = u * u + v * v;
+
+        // loop until valid numbers found
+    } while (w == 0.0f || w > 1.0f || w < -1.0f);
+
+    w = sqrtf((-2.0f * logf(w)) / w);
+
+    // calculate final numbers
+    float z1 = u * w;
+    z2 = v * w;
+
+    return z1;
 }
 
 void forward_propagate(Network* net, const float* inputs) {
@@ -121,5 +154,15 @@ void forward_propagate(Network* net, const float* inputs) {
 
         // use ReLu for hidden layers, tanh for output
         calculate_layer(&net->layers[i], cur_inputs, (i == net->num_layers - 1) ? tanh : relu);
+    }
+}
+
+void mutate(Network* net, float mutation_rate, float mutation_strength) {
+    for (int i = 0; i < net->layers; i++) {
+        for (int j = 0; j < net->layers[i].num_weights; j++) {
+            if (rand() / RAND_MAX < mutation_rate) {
+                net->layers[i].weights[j] += 0;
+            }
+        }
     }
 }
