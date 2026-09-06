@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "network.h"
 
@@ -102,9 +103,22 @@ void calculate_layer(Layer* layer, const float* inputs, float (*activation)(floa
     }
 }
 
+// Sigmoid activaiton function
+float tanh(float value){
+    return tanh(value);
+}
+
+// ReLu activation functino
+float relu(float value) {
+    return value > 0 ? value : 0;
+}
+
 void forward_propagate(Network* net, const float* inputs) {
+    // loop thru every layer
     for (int i = 0; i < net->num_layers; i++) {
         // sets the inputs to be the last layers outputs, or the passed in inputs depending on what layer it is on
         const float* cur_inputs = (i == 0) ? inputs : net->layers[i].output;
+
+        calculate_layer(&net->layers[i], cur_inputs, (i == net->num_layers - 1) ? tanh : relu);
     }
 }
