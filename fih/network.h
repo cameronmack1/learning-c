@@ -17,6 +17,6 @@ typedef struct {
     size_t num_layers;
 } Network;
 
-bool init(Network** out, size_t num_layers, ...);
+bool init_network(Network** out, size_t num_layers, ...);
 
 #endif

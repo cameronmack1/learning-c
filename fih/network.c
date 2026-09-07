@@ -25,7 +25,7 @@ bool create_add_layer(Network* network, int in_size, int layer_size, int num_lay
     return true;
 }
 
-bool init(Network** out, size_t num_layers, ...) {
+bool init_network(Network** out, size_t num_layers, ...) {
     if (num_layers < 2)
         return false;
 

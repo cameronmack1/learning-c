@@ -9,7 +9,7 @@ typedef struct {
     float y_pos;
     float x_vel;
     float y_vel;
-    float survival_time;
+    float fitness_score;
 } Fih;
 
 typedef struct {
@@ -20,8 +20,10 @@ typedef struct {
 } Shark;
 
 typedef struct {
-    Fih* fih;
+    Fih *fih;
+    Shark *sharks;
     size_t num_fih;
+    size_t num_sharks;
 } Game;
 
 #endif
