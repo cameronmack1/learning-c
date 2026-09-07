@@ -8,6 +8,18 @@
 #include "game.h"
 #include "network.h"
 
+// fish details
+#define FIH_MAX_VEL 20 // 20 u/s
+#define FIH_MAX_ACCEL 40 // 40 u/s^2
+#define FIH_RADIUS 1 // 1 unit
+// shark details
+#define SHARK_MAX_VEL 30 // 10 u/s^2
+#define SHARK_MAX_ACCEL 20 // 10 u/s
+#define SHARK_RADIUS 5 // 5 units
+// world details
+#define WORLD_WIDTH 100 // 100 units
+#define WORLD_HEIGHT 100 // you get the point
+
 bool init_game(Game** out, size_t fih_count, size_t shark_count) {
     // init game struct
     Game* game = calloc(1, sizeof(Game));
@@ -16,6 +28,7 @@ bool init_game(Game** out, size_t fih_count, size_t shark_count) {
         return false;
     }
 
+    // init memory for everything
     // init network for each fih
     game->fih = calloc(fih_count, sizeof(Fih));
     game->num_fih = fih_count;
@@ -31,11 +44,23 @@ bool init_game(Game** out, size_t fih_count, size_t shark_count) {
             return false;
         }
     }
+    // init sharks
     game->sharks = calloc(shark_count, sizeof(Shark));
     game->num_sharks = shark_count;
     if(game->sharks == NULL){
         free(game->fih);
         printf("Failed to allocate memory");
         return false;
+    }
+
+    // set to default semirandom positions
+    for(int i = 0; i < game->num_fih; i++){
+        game->fih[i].x_pos = (WORLD_WIDTH / 2) + rand() % (WORLD_WIDTH / 4) - WORLD_WIDTH / 8;
+        game->fih[i].y_pos = (WORLD_HEIGHT / 4) + rand() % (WORLD_HEIGHT / 8) - WORLD_HEIGHT / 16;
+    }
+
+    for(int i = 0; i < game->num_sharks; i++){
+        game->sharks[i].x_pos = (WORLD_WIDTH / 2) + rand() % (WORLD_WIDTH / 4) - WORLD_WIDTH / 8;
+        game->sharks[i].y_pos = (3 * WORLD_HEIGHT / 4) + rand() % (WORLD_HEIGHT / 16) - WORLD_HEIGHT / 32;
     }
 }
