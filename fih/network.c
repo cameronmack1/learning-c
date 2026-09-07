@@ -61,7 +61,8 @@ bool init_network(Network** out, size_t num_layers, ...) {
     va_start(args, num_layers);
 
     int inputs = va_arg(args, int);
-    if (!create_add_layer(network, inputs, va_arg(args, int), 0, true)) {
+    int layer_0 = va_arg(args, int);
+    if (!create_add_layer(network, inputs, layer_0, 0, true)) {
         free(network->layers[0].bias);
         free(network->layers[0].weights);
         free(network->layers[0].output);
@@ -101,7 +102,6 @@ void calculate_layer(Layer* layer, const float* inputs, float (*activation)(floa
         // add bias
         float sum = 0;
         sum += layer->bias[i];
-
         // loop over every input
         for (int j = 0; j < layer->num_inputs; j++) {
             // output = b + w1*i1 + w2i2....
@@ -162,7 +162,7 @@ void forward_propagate(Network* net, const float* inputs) {
     // loop thru every layer
     for (int i = 0; i < net->num_layers; i++) {
         // sets the inputs to be the last layers outputs, or the passed in inputs depending on what layer it is on
-        const float* cur_inputs = (i == 0) ? inputs : net->layers[i].output;
+        const float* cur_inputs = (i == 0) ? inputs : net->layers[i - 1].output;
 
         // use ReLu for hidden layers, tanh for output
         calculate_layer(&net->layers[i], cur_inputs, (i == net->num_layers - 1) ? tanh_activation : relu_activation);

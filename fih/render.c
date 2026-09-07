@@ -5,7 +5,7 @@
 #include "game.h"
 #include "render.h"
 
-#define SCALE 6
+#define SCALE 4
 
 int convert_units_to_pixels(int value) {
     return value * 6;
