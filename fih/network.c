@@ -19,7 +19,7 @@ bool create_add_layer(Network* network, int in_size, int layer_size, int num_lay
     layer->output = calloc(layer_size, sizeof(float));
 
     if (layer->bias == NULL || layer->weights == NULL || layer->output == NULL) {
-        printf("Failed to allocate memory");
+        printf("Failed to allocate memory for layer bias/weights/output\n");
         return false;
     }
     return true;
@@ -32,13 +32,13 @@ bool init_network(Network** out, size_t num_layers, ...) {
     Network* network;
     network = calloc(1, sizeof(Network));
     if (network == NULL) {
-        printf("Failed to allocate memory");
+        printf("Failed to allocate memory for network\n");
         return false;
     }
 
     network->layers = calloc(num_layers, sizeof(Layer));
     if (network->layers == NULL) {
-        printf("Failed to allocate memory");
+        printf("Failed to allocate memory for layer\n");
         free(network);
         return false;
     }
@@ -64,7 +64,6 @@ bool init_network(Network** out, size_t num_layers, ...) {
     // loop thru every variadic input
     for (int i = 1; i < num_layers; i++) {
         if (!create_add_layer(network, network->layers[i - 1].num_neurons, va_arg(args, int), i)) {
-            printf("Failed to allocate memory");
             for (int j = 0; j <= i; j++) {
                 free(network->layers[j].bias);
                 free(network->layers[j].weights);

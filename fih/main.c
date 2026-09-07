@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "game.h"
+#include "render.h"
 
 int max_width = -1;
 int max_height = -1;
@@ -14,22 +15,30 @@ int main(int argc, char* argv[]) {
     // init random seed
     srand(time(NULL));
     // create window
-    SetConfigFlags(FLAG_WINDOW_UNDECORATED);
-    InitWindow(1, 1, "no way its tetris");
+    InitWindow(1, 1, "no way its fih");
     SetTargetFPS(60);
 
-    int monitor = GetCurrentMonitor();
-
-    // get max width and height
-    int max_width = GetMonitorWidth(monitor);
-    int max_height = GetMonitorHeight(monitor);
-
     // rescale and move window
-    SetWindowSize(max_width, max_height);
-    SetWindowPosition(0, 0);
+    SetWindowSize(600, 600);
+    SetWindowPosition(100, 100);
+
+    Game *game;
+    if(!init_game(&game, 500, 2)){
+        printf("Failed to allocate memory for game\n");
+        CloseWindow();
+        return 0;
+    }
 
     // loop until window closed
     while (!WindowShouldClose()) {
+        BeginDrawing();
+
+        // clear bg and render
+        ClearBackground(BLUE);
+
+        render_game(game);
+
+        EndDrawing();
     }
     CloseWindow();
 }

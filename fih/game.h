@@ -26,4 +26,6 @@ typedef struct {
     size_t num_sharks;
 } Game;
 
+bool init_game(Game** out, size_t fih_count, size_t shark_count);
+
 #endif
