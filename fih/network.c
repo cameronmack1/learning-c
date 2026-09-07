@@ -7,7 +7,7 @@
 
 #include "network.h"
 
-bool create_add_layer(Network* network, int in_size, int layer_size, int num_layer) {
+bool create_add_layer(Network* network, int in_size, int layer_size, int num_layer, bool randomize) {
     Layer* layer = &network->layers[num_layer];
     // create values
     layer->num_neurons = layer_size;
@@ -21,6 +21,16 @@ bool create_add_layer(Network* network, int in_size, int layer_size, int num_lay
     if (layer->bias == NULL || layer->weights == NULL || layer->output == NULL) {
         printf("Failed to allocate memory for layer bias/weights/output\n");
         return false;
+    }
+
+    // uniform random from -1 to 1
+    if (randomize) {
+        for (int i = 0; i < layer->num_weights; i++) {
+            layer->weights[i] = ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
+        }
+        for (int i = 0; i < layer->num_neurons; i++) {
+            layer->bias[i] = ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
+        }
     }
     return true;
 }
@@ -51,7 +61,7 @@ bool init_network(Network** out, size_t num_layers, ...) {
     va_start(args, num_layers);
 
     int inputs = va_arg(args, int);
-    if (!create_add_layer(network, inputs, va_arg(args, int), 0)) {
+    if (!create_add_layer(network, inputs, va_arg(args, int), 0, true)) {
         free(network->layers[0].bias);
         free(network->layers[0].weights);
         free(network->layers[0].output);
@@ -63,7 +73,7 @@ bool init_network(Network** out, size_t num_layers, ...) {
 
     // loop thru every variadic input
     for (int i = 1; i < num_layers; i++) {
-        if (!create_add_layer(network, network->layers[i - 1].num_neurons, va_arg(args, int), i)) {
+        if (!create_add_layer(network, network->layers[i - 1].num_neurons, va_arg(args, int), i, true)) {
             for (int j = 0; j <= i; j++) {
                 free(network->layers[j].bias);
                 free(network->layers[j].weights);
