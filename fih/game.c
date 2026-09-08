@@ -20,6 +20,25 @@
 #define WORLD_WIDTH 150 // 1000 units
 #define WORLD_HEIGHT 150 // you get the point
 
+void reset_game(Game* game) {
+    // set to default semirandom positions
+    for (int i = 0; i < game->num_fih; i++) {
+        game->fih[i].x_pos = (WORLD_WIDTH / 2) + rand() % (WORLD_WIDTH / 4) - WORLD_WIDTH / 8;
+        game->fih[i].y_pos = (WORLD_HEIGHT / 4) + rand() % (WORLD_HEIGHT / 8) - WORLD_HEIGHT / 16;
+        game->fih[i].x_vel = 0;
+        game->fih[i].y_vel = 0;
+        game->fih[i].is_dead = 0;
+        game->fih[i].fitness_score = 0;
+    }
+
+    for (int i = 0; i < game->num_sharks; i++) {
+        game->sharks[i].x_pos = (WORLD_WIDTH / 2) + rand() % (WORLD_WIDTH / 4) - WORLD_WIDTH / 8;
+        game->sharks[i].y_pos = (3 * WORLD_HEIGHT / 4) + rand() % (WORLD_HEIGHT / 16) - WORLD_HEIGHT / 32;
+        game->sharks[i].x_vel = 0;
+        game->sharks[i].y_vel = 0;
+    }
+}
+
 bool init_game(Game** out, size_t fih_count, size_t shark_count) {
     // init game struct
     Game* game = calloc(1, sizeof(Game));
@@ -52,17 +71,8 @@ bool init_game(Game** out, size_t fih_count, size_t shark_count) {
         printf("Failed to allocate memory for sharks\n");
         return false;
     }
+    reset_game(game);
 
-    // set to default semirandom positions
-    for (int i = 0; i < game->num_fih; i++) {
-        game->fih[i].x_pos = (WORLD_WIDTH / 2) + rand() % (WORLD_WIDTH / 4) - WORLD_WIDTH / 8;
-        game->fih[i].y_pos = (WORLD_HEIGHT / 4) + rand() % (WORLD_HEIGHT / 8) - WORLD_HEIGHT / 16;
-    }
-
-    for (int i = 0; i < game->num_sharks; i++) {
-        game->sharks[i].x_pos = (WORLD_WIDTH / 2) + rand() % (WORLD_WIDTH / 4) - WORLD_WIDTH / 8;
-        game->sharks[i].y_pos = (3 * WORLD_HEIGHT / 4) + rand() % (WORLD_HEIGHT / 16) - WORLD_HEIGHT / 32;
-    }
     *out = game;
     return true;
 }
@@ -258,8 +268,13 @@ void next_round(Game* game) {
                 break;
             }
         }
-        if (is_parent) {
+        if (is_parent)
             continue;
-        }
+
+        // copy and mutate
+        copy_network(game->fih[best_fih[i % 5]].network, game->fih[i].network);
+        mutate(game->fih[i].network, 0.10f, 0.10f);
     }
+    // reset all positions and velocities and scores
+    reset_game(game);
 }

@@ -8,7 +8,7 @@
 #include "game.h"
 #include "render.h"
 
-#define ROUND_LENGTH 10 //seconds
+#define ROUND_LENGTH 5 //seconds
 
 int max_width = -1;
 int max_height = -1;
@@ -39,7 +39,9 @@ int main(int argc, char* argv[]) {
         timer += GetFrameTime();
 
         if(timer > (float)ROUND_LENGTH){
-            // end round somehow
+            // end round and start next
+            next_round(game);
+            timer = 0.0f;
         }
 
         BeginDrawing();
