@@ -224,3 +224,42 @@ void tick(Game* game) {
         }
     }
 }
+
+// take the 5 best networks, copy them to cover the entire thing, and mutate
+void next_round(Game* game) {
+    // lowest to highest
+    int best_fih[5] = { -1 };
+    float best_scores[5] = { -1.0f };
+
+    for (int i = 0; i < game->num_fih; i++) {
+        // if score is lower than minimum, ignore
+        if (game->fih[i].fitness_score < best_scores[0])
+            continue;
+
+        int j = 1;
+        // shift elements until we reach the one we want
+        while (j < 5 && best_scores[j] < game->fih[i].fitness_score) {
+            best_scores[j - 1] = best_scores[j];
+            best_fih[j - 1] = best_fih[j];
+            j++;
+        }
+
+        // insert new fish
+        best_scores[j] = game->fih[i].fitness_score;
+        best_fih[j] = i;
+    }
+
+    for (int i = 0; i < game->num_fih; i++) {
+        // make sure we dont modify any of the parents
+        bool is_parent = false;
+        for (int j = 0; j < 5; j++) {
+            if (i == j) {
+                is_parent = true;
+                break;
+            }
+        }
+        if (is_parent) {
+            continue;
+        }
+    }
+}

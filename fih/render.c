@@ -14,6 +14,8 @@ int convert_units_to_pixels(int value) {
 void render_game(const Game* game) {
     // render fish
     for (int i = 0; i < game->num_fih; i++) {
+        if(game->fih[i].is_dead)
+            continue;
         DrawCircle(game->fih[i].x_pos * SCALE, game->fih[i].y_pos * SCALE, 1 * SCALE, GREEN);
         DrawCircleLines(game->fih[i].x_pos * SCALE, game->fih[i].y_pos * SCALE, 1 * SCALE, WHITE);
     }

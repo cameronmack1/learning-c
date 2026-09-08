@@ -8,6 +8,8 @@
 #include "game.h"
 #include "render.h"
 
+#define ROUND_LENGTH 10 //seconds
+
 int max_width = -1;
 int max_height = -1;
 
@@ -29,9 +31,16 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
+    float timer = 0.0f;
+
     // loop until window closed
     while (!WindowShouldClose()) {
         tick(game);
+        timer += GetFrameTime();
+
+        if(timer > (float)ROUND_LENGTH){
+            // end round somehow
+        }
 
         BeginDrawing();
 
