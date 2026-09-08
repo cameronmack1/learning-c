@@ -14,7 +14,6 @@ int max_height = -1;
 int main(int argc, char* argv[]) {
     // init random seed
     srand(time(NULL));
-    srand(1);
     // create window
     InitWindow(1, 1, "no way its fih");
     SetTargetFPS(60);

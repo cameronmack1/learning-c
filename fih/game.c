@@ -72,10 +72,17 @@ float magnitude(float val1, float val2) {
 }
 
 void tick(Game* game) {
+    // reset nearest distance to each fish for all sharks
+    for (int i = 0; i < game->num_sharks; i++) {
+        game->sharks[i].nearest_dist = __FLT_MAX__;
+        game->sharks[i].nearest_fih = -1;
+    }
     // move fish
     // fish inputs are
     // vx, vy, sdx, sdy, svx, svy, ldx, rdx, udy, ddy
     for (int i = 0; i < game->num_fih; i++) {
+        if (game->fih[i].is_dead)
+            continue;
         float inputs[10] = { 0.0f };
         inputs[0] = game->fih[i].x_vel / FIH_MAX_VEL;
         inputs[1] = game->fih[i].y_vel / FIH_MAX_VEL;
@@ -92,6 +99,10 @@ void tick(Game* game) {
             if (dist < best_euclid) {
                 best_euclid = dist;
                 shark_index = j;
+            }
+            if (dist < game->sharks[j].nearest_dist) {
+                game->sharks[j].nearest_dist = dist;
+                game->sharks[j].nearest_fih = i;
             }
         }
 
@@ -139,14 +150,77 @@ void tick(Game* game) {
         // make sure fish stay on screen
         if (game->fih[i].x_pos < FIH_RADIUS) {
             game->fih[i].x_pos = FIH_RADIUS;
+            game->fih[i].x_vel = 0;
         } else if (game->fih[i].x_pos > WORLD_WIDTH - FIH_RADIUS) {
             game->fih[i].x_pos = WORLD_WIDTH - FIH_RADIUS;
+            game->fih[i].x_vel = 0;
         }
 
         if (game->fih[i].y_pos < FIH_RADIUS) {
             game->fih[i].y_pos = FIH_RADIUS;
+            game->fih[i].y_vel = 0;
         } else if (game->fih[i].y_pos > WORLD_HEIGHT - FIH_RADIUS) {
             game->fih[i].y_pos = WORLD_HEIGHT - FIH_RADIUS;
+            game->fih[i].y_vel = 0;
+        }
+    }
+    // move shark
+    // loop over every shark
+    // we found the nearest fish to each shark at the start during the fish loop
+    for (int i = 0; i < game->num_sharks; i++) {
+        float x_accel = game->fih[game->sharks[i].nearest_fih].x_pos - game->sharks[i].x_pos;
+        float y_accel = game->fih[game->sharks[i].nearest_fih].y_pos - game->sharks[i].y_pos;
+        // normalize and add acceleration to velocity
+        float mag = magnitude(x_accel, y_accel);
+        x_accel /= mag / (float)SHARK_MAX_ACCEL;
+        y_accel /= mag / (float)SHARK_MAX_ACCEL;
+        game->sharks[i].x_vel += x_accel / 60.0f;
+        game->sharks[i].y_vel += y_accel / 60.0f;
+        // normalize and add velocity to pos
+        mag = magnitude(game->sharks[i].x_vel, game->sharks[i].y_vel);
+        if (mag > SHARK_MAX_VEL) {
+            game->sharks[i].x_vel /= mag / (float)SHARK_MAX_VEL;
+            game->sharks[i].y_vel /= mag / (float)SHARK_MAX_VEL;
+        }
+        game->sharks[i].x_pos += game->sharks[i].x_vel / 60.0f;
+        game->sharks[i].y_pos += game->sharks[i].y_vel / 60.0f;
+
+        // prevent going off screen
+        if (game->sharks[i].x_pos < SHARK_RADIUS) {
+            game->sharks[i].x_pos = SHARK_RADIUS;
+            game->sharks[i].x_vel = 0;
+        } else if (game->sharks[i].x_pos > WORLD_WIDTH - SHARK_RADIUS) {
+            game->sharks[i].x_pos = WORLD_WIDTH - SHARK_RADIUS;
+            game->sharks[i].x_vel = 0;
+        }
+
+        if (game->sharks[i].y_pos < SHARK_RADIUS) {
+            game->sharks[i].y_pos = SHARK_RADIUS;
+            game->sharks[i].y_vel = 0;
+        } else if (game->sharks[i].y_pos > WORLD_HEIGHT - SHARK_RADIUS) {
+            game->sharks[i].y_pos = WORLD_HEIGHT - SHARK_RADIUS;
+            game->sharks[i].y_vel = 0;
+        }
+    }
+
+    // loop thru every fish, check if dead, add fitness
+    for (int i = 0; i < game->num_fih; i++) {
+        float min_dist = __FLT_MAX__;
+        // loop thru every shark to check if dead and find distance to nearest shark
+        for (int j = 0; j < game->num_sharks; j++) {
+            float dx = game->sharks[j].x_pos - game->fih[i].x_pos;
+            float dy = game->sharks[j].y_pos - game->fih[i].y_pos;
+
+            float dist = sqrt(dx * dx + dy * dy);
+            if (dist < min_dist) {
+                min_dist = dist;
+                if (min_dist < FIH_RADIUS + SHARK_RADIUS) {
+                    game->fih[i].is_dead = true;
+                }
+            }
+        }
+        if (!game->fih[i].is_dead) {
+            game->fih[i].fitness_score += 1.0f + (1 / min_dist);
         }
     }
 }

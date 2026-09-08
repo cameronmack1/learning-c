@@ -10,6 +10,7 @@ typedef struct {
     float x_vel;
     float y_vel;
     float fitness_score;
+    bool is_dead;
 } Fih;
 
 typedef struct {
@@ -17,6 +18,8 @@ typedef struct {
     float y_pos;
     float x_vel;
     float y_vel;
+    float nearest_dist;
+    int nearest_fih;
 } Shark;
 
 typedef struct {
