@@ -189,3 +189,18 @@ void mutate(Network* net, float mutation_rate, float mutation_strength) {
         }
     }
 }
+
+// this will NOT work if layer sizes are not even
+void copy_network(Network *in, Network *out){   
+    // loop over each layer
+    for(int i = 0; i < in->num_layers; i++){
+        // copy all weights
+        for(int j = 0; j < in->layers[i].num_weights; j++){
+            out->layers[i].weights[j] = in->layers[i].weights[j];
+        }
+        // copy all bias
+        for(int j = 0; j < in->layers[i].num_neurons; j++){
+            out->layers[i].bias[j] = in->layers[i].bias[j];
+        }
+    }
+}
