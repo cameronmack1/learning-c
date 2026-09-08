@@ -160,7 +160,6 @@ void tick(Game* game) {
         // make sure fish stay on screen
         if (game->fih[i].x_pos < FIH_RADIUS) {
             game->fih[i].x_pos = FIH_RADIUS;
-            game->fih[i].x_vel = 0;
         } else if (game->fih[i].x_pos > WORLD_WIDTH - FIH_RADIUS) {
             game->fih[i].x_pos = WORLD_WIDTH - FIH_RADIUS;
             game->fih[i].x_vel = 0;
@@ -230,7 +229,7 @@ void tick(Game* game) {
             }
         }
         if (!game->fih[i].is_dead) {
-            game->fih[i].fitness_score += 1.0f + (1 / min_dist);
+            game->fih[i].fitness_score += 1.0f + min_dist / 100;
         }
     }
 }
@@ -253,6 +252,7 @@ void next_round(Game* game) {
             best_fih[j - 1] = best_fih[j];
             j++;
         }
+        j--;
 
         // insert new fish
         best_scores[j] = game->fih[i].fitness_score;
@@ -263,7 +263,7 @@ void next_round(Game* game) {
         // make sure we dont modify any of the parents
         bool is_parent = false;
         for (int j = 0; j < 5; j++) {
-            if (i == j) {
+            if (i == best_fih[j]) {
                 is_parent = true;
                 break;
             }

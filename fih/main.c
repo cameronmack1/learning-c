@@ -8,12 +8,13 @@
 #include "game.h"
 #include "render.h"
 
-#define ROUND_LENGTH 5 //seconds
+#define ROUND_LENGTH 10 //seconds
 
 int max_width = -1;
 int max_height = -1;
 
 int main(int argc, char* argv[]) {
+    bool use_speedup = false;
     // init random seed
     srand(time(NULL));
     // create window
@@ -35,10 +36,19 @@ int main(int argc, char* argv[]) {
 
     // loop until window closed
     while (!WindowShouldClose()) {
+        if(IsKeyPressed(KEY_SPACE)){
+            use_speedup ^= true;
+        }
+        if(IsKeyPressed(KEY_ENTER)){
+            next_round(game);
+        }
         tick(game);
+        if(use_speedup){
+            tick(game);
+        }
         timer += GetFrameTime();
 
-        if(timer > (float)ROUND_LENGTH){
+        if(timer > (float)ROUND_LENGTH / (use_speedup ? 2.0f : 1.0f)){
             // end round and start next
             next_round(game);
             timer = 0.0f;
